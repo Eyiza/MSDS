@@ -33,8 +33,3 @@ npm run start
 
 ### API Documentation
 **The Postman API documentation can be found [here](/backend/MSDS.postman_collection.json).**
-
-### References
-    * [Medium Tutorial](https://duncanlew.medium.com/build-a-node-js-server-with-fastify-and-typescript-a0f7225afddc)
-    * [Daily Dev Tutorial](https://daily.dev/blog/how-to-build-blazing-fast-apis-with-fastify-and-typescript)
-    * [Fastify Documentation](https://fastify.dev/docs/latest/Reference/TypeScript/)

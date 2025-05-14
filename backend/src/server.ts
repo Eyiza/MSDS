@@ -5,7 +5,6 @@ dotenv.config();
 
 const fastify = Fastify({ logger: true });
 
-// Sample route
 fastify.get('/', async () => {
   return { message: 'MSDS Backend Running' };
 });

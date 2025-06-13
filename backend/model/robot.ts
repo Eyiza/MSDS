@@ -20,7 +20,7 @@ const RobotSchema = new Schema({
   ipAddress: String,
   uptime: Number,
   batteryLevel: Number,
-  currentMode: { type: String, enum: ['standby', 'delivery', 'mapping', 'manual'] },
+  currentMode: { type: String, enum: ['standby', 'delivery', 'mapping', 'manual'], default: 'standby' },
   lastOnline: Date,
   lastLocation: {
     x: Number,

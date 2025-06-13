@@ -13,6 +13,12 @@ app.get('/', async (req, res) => {
   res.send("MSDS Backend Running");
 });
 
+// Import routes
+import robotRoutes from './routes/robot';
+
+// Register routes
+app.register(robotRoutes);
+
 // Start server and connect to MongoDB
 const start = async () => {
   try {

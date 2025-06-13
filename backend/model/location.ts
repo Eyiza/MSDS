@@ -13,7 +13,7 @@ export interface ILocation extends Document {
 }
 
 const LocationSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, unique: true },
   coordinates: {
     x: Number,
     y: Number,

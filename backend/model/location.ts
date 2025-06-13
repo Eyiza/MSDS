@@ -2,11 +2,13 @@ import { Schema, model, Document } from 'mongoose';
 
 // Define the Location interface extending Document for Mongoose
 export interface ILocation extends Document {
+  _id: Schema.Types.ObjectId;
   name: string;
   coordinates: {
     x: number;
     y: number;
   };
+  description: string;
   robot: Schema.Types.ObjectId;
   type: string;
   createdAt: Date;

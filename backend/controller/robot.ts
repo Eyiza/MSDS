@@ -1,7 +1,6 @@
 import Robot, { IRobot } from "../model/robot";
 import { FastifyRequest, FastifyReply } from "fastify";
 
-// Controller for handling robot-related operations
 export const createRobot = async (req: FastifyRequest<{ Body: IRobot }>, res: FastifyReply) => {
   const { name, serialNumber, ipAddress } = req.body;
   try {

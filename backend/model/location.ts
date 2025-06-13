@@ -23,7 +23,7 @@ const LocationSchema = new Schema({
     ref: 'Robot',
     required: true,
   },
-  description: { type: String, default: '' },
+  description: String,
   type: { type: String, enum: ['ward', 'base', 'room'], default: 'room' },
   createdAt: { type: Date, default: Date.now },
 });

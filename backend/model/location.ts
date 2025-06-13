@@ -8,7 +8,6 @@ export interface ILocation extends Document {
     y: number;
   };
   robot: Schema.Types.ObjectId;
-  description: string;
   type: string;
   createdAt: Date;
 }

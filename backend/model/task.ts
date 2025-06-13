@@ -8,16 +8,7 @@ export interface ITask extends Document {
   message: string;
   location: Schema.Types.ObjectId;
   status: string; 
-  deliveryItem: string;
-  failureReason: string;
   createdAt: Date;
-  deliveryTimeline: {
-    create: Date;
-    queued: Date;
-    start: Date;
-    complete: Date;
-    fail: Date;
-  };
 }
 
 const TaskSchema = new Schema({

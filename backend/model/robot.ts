@@ -60,6 +60,10 @@ const RobotSchema = new Schema({
 //     frame_id: { type: String, default: 'map' },
 //     timestamp: { type: Date, default: Date.now }
 //   },
+//   users: [{
+//     type: Schema.Types.ObjectId,
+//     ref: 'User',
+//   }],
   createdAt: { type: Date, default: Date.now },
 });
 

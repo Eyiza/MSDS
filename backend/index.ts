@@ -8,7 +8,6 @@ const app = Fastify();
 const PORT = Number(process.env.PORT) || 5000;
 const MONGODB_URL = process.env.MONGODB_URL || "";
 
-
 // Routes
 app.get('/', async (req, res) => {
   res.send("MSDS Backend Running");

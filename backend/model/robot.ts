@@ -10,6 +10,15 @@ export interface IRobot extends Document {
   lastOnline: Date;
   locations: Schema.Types.ObjectId[];
   deliveries: Schema.Types.ObjectId[];
+  settings: {
+    maxSpeed: number; 
+    maxSpeedUnits: string; 
+    waitTimeAtDelivery: number;
+    retryCount: number;
+    requireRFIDConfirmation: boolean;
+    autoDockingEnabled: boolean;
+    defaultMessage: string;
+  };
   createdAt: Date;
 }
 

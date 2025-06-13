@@ -1,18 +1,42 @@
 import { Schema, model, Document } from 'mongoose';
-import robot from './robot';
 
-const RecipientSchema = new Schema({
-  name: { type: String, required: true },
-  patient_ID: { type: String, unique: true },
-  ward: String,
-  room: String,
-  location: { type: Schema.Types.ObjectId, ref: 'Location' },
+// Define the Task interface extending Document for Mongoose
+export interface ITask extends Document {
+  task_id: string;
+  recipient: Schema.Types.ObjectId;
+  robot: Schema.Types.ObjectId;
+  message: string;
+  location: Schema.Types.ObjectId;
+  status: string; 
+  deliveryItem: string;
+  failureReason: string;
+  createdAt: Date;
+  deliveryTimeline: {
+    create: Date;
+    queued: Date;
+    start: Date;
+    complete: Date;
+    fail: Date;
+  };
+}
+
+const TaskSchema = new Schema({
+  task_id: { type: String, unique: true, required: true },
+  recipient: { type: Schema.Types.ObjectId, ref: 'Recipient', required: true },
   robot: { type: Schema.Types.ObjectId, ref: 'Robot' },
-  rfidTag: { type: Schema.Types.ObjectId, ref: 'IdentificationTag' },
-  bleBeacon: { type: Schema.Types.ObjectId, ref: 'IdentificationTag' },
-  admissionDate: { type: Date, default: Date.now },
-  medicalCondition: String,
-  contactInformation: String,
-  notes: String,
-  deliveryHistory: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
+  message: String,
+  location: { type: Schema.Types.ObjectId, ref: 'Location' },
+  status: { type: String, enum: ['todo', 'queued', 'active', 'completed', 'missed'], default: 'todo' },
+  deliveryItem: String,
+  failureReason: String,
+  createdAt: { type: Date, default: Date.now },
+  deliveryTimeline: {
+    create: Date,
+    queued: Date,
+    start: Date,
+    complete: Date,
+    fail: Date
+  },
 });
+
+export default model<ITask>('Task', TaskSchema);

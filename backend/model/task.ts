@@ -2,6 +2,7 @@ import { Schema, model, Document } from 'mongoose';
 
 // Define the Task interface extending Document for Mongoose
 export interface ITask extends Document {
+  _id: Schema.Types.ObjectId;
   task_id: string;
   recipient: Schema.Types.ObjectId;
   robot: Schema.Types.ObjectId;

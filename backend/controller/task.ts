@@ -23,6 +23,9 @@ export const createTask = async (req: FastifyRequest<{ Body: ITask }>, res: Fast
                 create: new Date(),
             }
         });
+        recipientExists.deliveryHistory.push(task._id);
+        await recipientExists.save();
+        
         await task.save();
         return res.status(201).send({
             success: true,

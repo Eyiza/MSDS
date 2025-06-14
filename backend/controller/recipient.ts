@@ -14,8 +14,12 @@ export const createRecipient = async (req: FastifyRequest<{ Body: IRecipient }>,
     }
     const locationExists = await Location.findById(location);
     if (!locationExists) return res.status(404).send({ success: false, message: "Location not found" });
-    if (!(await IdentificationTag.findById(rfidTag))) return res.status(404).send({ success: false, message: "RFID Tag not found" });
-    if (!(await IdentificationTag.findById(bleBeacon))) return res.status(404).send({ success: false, message: "BLE Beacon not found" });
+
+    const BLE = await IdentificationTag.findById(bleBeacon);
+    if (!BLE) return res.status(404).send({ success: false, message: "BLE Beacon not found" });
+
+    const RFID = await IdentificationTag.findById(rfidTag);
+    if (!RFID) return res.status(404).send({ success: false, message: "RFID Tag not found" });
     
     const recipient = new Recipient({
       name,
@@ -28,6 +32,18 @@ export const createRecipient = async (req: FastifyRequest<{ Body: IRecipient }>,
       contactInformation,
       notes
     });
+
+    BLE.assignedTo = recipient.id;
+    BLE.assignedDate = new Date();
+    BLE.status = 'active';
+
+    RFID.assignedTo = recipient.id;
+    RFID.assignedDate = new Date();
+    RFID.status = 'active';
+
+    await BLE.save();
+    await RFID.save();
+
     await recipient.save();
     return res.status(201).send({
       success: true,

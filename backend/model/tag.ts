@@ -20,7 +20,7 @@ const IdentificationTagSchema = new Schema({
   assignedTo: { type: Schema.Types.ObjectId, ref: 'Recipient' },
   assignedDate: Date,
   lastScanned: Date,
-  status: { type: String, enum: ['active', 'available'], default: 'active' },
+  status: { type: String, enum: ['active', 'available'], default: 'available' },
   createdAt: { type: Date, default: Date.now },
   usageHistory: [{
     task: { type: Schema.Types.ObjectId, ref: 'Task' },

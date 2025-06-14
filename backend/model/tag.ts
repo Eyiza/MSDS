@@ -23,7 +23,7 @@ const IdentificationTagSchema = new Schema({
   status: { type: String, enum: ['active', 'available'], default: 'active' },
   createdAt: { type: Date, default: Date.now },
   usageHistory: [{
-    taskId: { type: Schema.Types.ObjectId, ref: 'Task' },
+    task: { type: Schema.Types.ObjectId, ref: 'Task' },
     timestamp: Date,
     rssi: Number,
   }],

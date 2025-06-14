@@ -16,10 +16,12 @@ app.get('/', async (req, res) => {
 // Import routes
 import robotRoutes from './routes/robot';
 import locationRoutes from './routes/location';
+import tagRoutes from './routes/tag';
 
 // Register routes
 app.register(robotRoutes);
 app.register(locationRoutes);
+app.register(tagRoutes);
 
 // Start server and connect to MongoDB
 const start = async () => {

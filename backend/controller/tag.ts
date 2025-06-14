@@ -38,11 +38,11 @@ export const getTagById = async (req: FastifyRequest<{ Params: { id: string } }>
     const tag = await IdentificationTag.findById(id).populate('assignedTo')
         .populate({
             path: 'assignedTo.location',
-            select: 'name type'
+            select: '_id name type'
         })
         .populate({
             path: 'usageHistory.task',
-            select: 'task_id status createdAt',
+            select: '_id task_id status createdAt',
         });
     if (!tag) {
       return res.status(404).send({
@@ -76,11 +76,11 @@ export const updateTag = async (req: FastifyRequest<{ Params: { id: string }, Bo
     }, { new: true }).populate('assignedTo')
         .populate({
             path: 'assignedTo.location',
-            select: 'name type'
+            select: '_id name type'
         })
         .populate({
             path: 'usageHistory.task',
-            select: 'task_id status createdAt',
+            select: '_id task_id status createdAt',
         });
     if (!tag) {
       return res.status(404).send({
@@ -113,11 +113,11 @@ export const searchTags = async (req: FastifyRequest<{ Querystring: { status: st
     const tags = await IdentificationTag.find(filter).populate('assignedTo')
         .populate({
             path: 'assignedTo.location',
-            select: 'name type'
+            select: '_id name type'
         })
         .populate({
             path: 'usageHistory.task',
-            select: 'task_id status createdAt',
+            select: '_id task_id status createdAt',
         });
     return res.status(200).send({
       success: true,

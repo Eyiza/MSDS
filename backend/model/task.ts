@@ -8,9 +8,18 @@ export interface ITask extends Document {
   message: string;
   location: Schema.Types.ObjectId;
   status: string; 
+  deliveryItem?: string;
+  failureReason?: string;
+  deliveryTimeline: {
+    create?: Date;
+    queued?: Date;
+    start?: Date;
+    complete?: Date;
+    fail?: Date;
+  };
   createdAt: Date;
 }
-
+ 
 const TaskSchema = new Schema({
   task_id: { type: String, unique: true, required: true },
   recipient: { type: Schema.Types.ObjectId, ref: 'Recipient', required: true },

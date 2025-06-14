@@ -1,11 +1,10 @@
 import Recipient, { IRecipient } from '../model/recipient';
 import Location from '../model/location';
-import Robot from '../model/robot';
 import IdentificationTag from '../model/tag';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
 export const createRecipient = async (req: FastifyRequest<{ Body: IRecipient }>, res: FastifyReply): Promise<FastifyReply> => {
-  const { name, location, robot, rfidTag, bleBeacon, medicalCondition, contactInformation, notes } = req.body;
+  const { name, location, rfidTag, bleBeacon, medicalCondition, contactInformation, notes } = req.body;
   try {
     // Generate a unique patient_ID 
     const patient_ID: string = `P-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -13,16 +12,16 @@ export const createRecipient = async (req: FastifyRequest<{ Body: IRecipient }>,
       console.log("Recipient with this Patient ID already exists:");
       return createRecipient(req, res);
     }
-    if (robot && !(await Robot.findById(robot))) return res.status(404).send({ success: false, message: "Robot not found" });
-    if (location && !(await Location.findById(location))) return res.status(404).send({ success: false, message: "Location not found" });
-    if (rfidTag && !(await IdentificationTag.findById(rfidTag))) return res.status(404).send({ success: false, message: "RFID Tag not found" });
-    if (bleBeacon && !(await IdentificationTag.findById(bleBeacon))) return res.status(404).send({ success: false, message: "BLE Beacon not found" });
+    const locationExists = await Location.findById(location);
+    if (!locationExists) return res.status(404).send({ success: false, message: "Location not found" });
+    if (!(await IdentificationTag.findById(rfidTag))) return res.status(404).send({ success: false, message: "RFID Tag not found" });
+    if (!(await IdentificationTag.findById(bleBeacon))) return res.status(404).send({ success: false, message: "BLE Beacon not found" });
     
     const recipient = new Recipient({
       name,
       patient_ID,
       location,
-      robot,
+      robot: locationExists.robot,
       rfidTag,
       bleBeacon,
       medicalCondition,
@@ -51,19 +50,19 @@ export const getRecipientById = async (req: FastifyRequest<{ Params: { id: strin
     const recipient = await Recipient.findById(id)
         .populate({
             path: 'location',
-            select: 'name type',
+            select: '_id name type',
         })
         .populate({
             path: 'rfidTag',
-            select: 'type tagCode ',
+            select: '_id type tagCode',
         })
         .populate({
             path: 'bleBeacon',
-            select: 'type tagCode ',
+            select: '_id type tagCode',
         })
         .populate({
             path: 'deliveryHistory',
-            select: 'task_id status createdAt',
+            select: '_id task_id status createdAt deliveryTimeline',
         });
     if (!recipient) {
       return res.status(404).send({
@@ -101,19 +100,19 @@ export const updateRecipient = async (req: FastifyRequest<{ Params: { id: string
         notes
     }, { new: true }).populate({
             path: 'location',
-            select: 'name type',
+            select: '_id name type',
         })
         .populate({
             path: 'rfidTag',
-            select: 'type tagCode ',
+            select: '_id type tagCode ',
         })
         .populate({
             path: 'bleBeacon',
-            select: 'type tagCode ',
+            select: '_id type tagCode ',
         })
         .populate({
             path: 'deliveryHistory',
-            select: 'task_id status createdAt',
+            select: '_id task_id status createdAt deliveryTimeline',
         });
     if (!recipient) {
       return res.status(404).send({
@@ -146,19 +145,19 @@ export const searchRecipients = async (req: FastifyRequest<{ Querystring: { name
     const recipients = await Recipient.find(filter)
         .populate({
             path: 'location',
-            select: 'name type',
+            select: '_id name type',
         })
         .populate({
             path: 'rfidTag',
-            select: 'type tagCode ',
+            select: '_id type tagCode',
         })
         .populate({
             path: 'bleBeacon',
-            select: 'type tagCode ',
+            select: '_id type tagCode',
         })
         .populate({
             path: 'deliveryHistory',
-            select: 'task_id status createdAt',
+            select: '_id task_id status createdAt deliveryTimeline',
         });
     return res.status(200).send({
       success: true,

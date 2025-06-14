@@ -18,12 +18,14 @@ import robotRoutes from './routes/robot';
 import locationRoutes from './routes/location';
 import tagRoutes from './routes/tag';
 import recipientRoutes from './routes/recipient';
+import taskRoutes from './routes/task';
 
 // Register routes
 app.register(robotRoutes);
 app.register(locationRoutes);
 app.register(tagRoutes);
 app.register(recipientRoutes);
+app.register(taskRoutes);
 
 // Start server and connect to MongoDB
 const start = async () => {

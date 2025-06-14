@@ -9,6 +9,11 @@ export interface IRecipient extends Document {
   rfidTag: Schema.Types.ObjectId;
   bleBeacon: Schema.Types.ObjectId;
   admissionDate: Date;
+  medicalCondition?: string;
+  contactInformation?: string;
+  notes?: string;
+  deliveryHistory: Schema.Types.ObjectId[];
+  createdAt: Date;
 }
 
 const RecipientSchema = new Schema({

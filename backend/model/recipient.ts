@@ -12,6 +12,8 @@ export interface IRecipient extends Document {
   medicalCondition?: string;
   contactInformation?: string;
   notes?: string;
+  checkOutDate?: Date;
+  status: string;
   deliveryHistory: Schema.Types.ObjectId[];
   createdAt: Date;
 }
@@ -27,6 +29,8 @@ const RecipientSchema = new Schema({
   medicalCondition: String,
   contactInformation: String,
   notes: String,
+  checkOutDate: Date,
+  status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   deliveryHistory: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
   createdAt: { type: Date, default: Date.now }
 });

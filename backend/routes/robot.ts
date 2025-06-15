@@ -1,8 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import { createRobot, getRobots, 
   getRobotById, updateRobot,
-  deactivateRobot, resetRobot
- } from '../controller/robot';
+  deactivateRobot, resetRobot,
+  startQueuedTasks
+} from '../controller/robot';
 
 export default async function robotRoutes(fastify: FastifyInstance) {
   fastify.post('/robot', createRobot);
@@ -11,4 +12,5 @@ export default async function robotRoutes(fastify: FastifyInstance) {
   fastify.put('/robot/:id', updateRobot);
   fastify.patch('/robot/:id/deactivate', deactivateRobot);
   fastify.patch('/robot/:id/reset', resetRobot);
+  // fastify.post('/robot/:id/start-queued-tasks', startQueuedTasks);
 }

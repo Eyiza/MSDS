@@ -1,4 +1,5 @@
 import Task, { ITask } from '../model/task';
+import Robot from '../model/robot';
 import Recipient from '../model/recipient';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
@@ -12,6 +13,12 @@ export const createTask = async (req: FastifyRequest<{ Body: ITask }>, res: Fast
         }
         const recipientExists = await Recipient.findById(recipient)
         if (!recipientExists) return res.status(404).send({ success: false, message: "Recipient not found" });
+        if (recipientExists.status !== 'active') return res.status(400).send({ success: false, message: "Recipient is not available" });
+
+        const robot = await Robot.findById(recipientExists.robot);
+        if (!robot) return res.status(404).send({ success: false, message: "Robot not found" });
+        if (robot.status !== 'active') return res.status(400).send({ success: false, message: "Robot is not available" });
+
         const task = new Task({
             task_id,
             recipient,
@@ -23,10 +30,11 @@ export const createTask = async (req: FastifyRequest<{ Body: ITask }>, res: Fast
                 create: new Date(),
             }
         });
-        recipientExists.deliveryHistory.push(task._id);
-        await recipientExists.save();
-        
+        robot.deliveries.push(task._id);
+
+        await robot.save();
         await task.save();
+
         return res.status(201).send({
             success: true,
             message: "Task created successfully",
@@ -131,13 +139,16 @@ export const dequeueTask = async (req: FastifyRequest<{ Params: { id: string } }
 export const deleteTask = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
   const { id } = req.params;
   try {
-    const task = await Task.findByIdAndDelete(id);
-    if (!task) {
-      return res.status(404).send({
-        success: false,
-        message: "Task not found"
-      });
+    const task = await Task.findById(id);
+    if (!task) return res.status(404).send({ success: false, message: "Task not found" });
+    if (task.status !== 'todo') return res.status(400).send({ success: false, message: "Task is not in a deletable state" });
+    
+    const robot = await Robot.findById(task.robot);
+    if (robot) {
+      robot.deliveries = robot.deliveries.filter(delivery => delivery.toString() !== task._id.toString());
+      await robot.save();
     }
+    await Task.findByIdAndDelete(id);
     return res.status(200).send({
       success: true,
       message: "Task deleted successfully"

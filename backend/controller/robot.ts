@@ -1,4 +1,5 @@
 import Robot, { IRobot } from "../model/robot";
+import Task from "../model/task";
 import { FastifyRequest, FastifyReply } from "fastify";
 
 export const createRobot = async (req: FastifyRequest<{ Body: IRobot }>, res: FastifyReply) => {
@@ -166,6 +167,43 @@ export const resetRobot = async (req: FastifyRequest<{ Params: { id: string } }>
       success: false,
       message: "Error resetting robot",
       error,
+    });
+  }
+};
+
+export const startQueuedTasks = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
+  const { id } = req.params;
+  try {
+    const robot = await Robot.findById(id);
+    if (!robot) {
+      return res.status(404).send({
+        success: false,
+        message: "Robot not found",
+      });
+    }
+    const tasks = await Task.find({ robot: id, status: 'queued' });
+    if (!tasks.length) {
+      return res.status(404).send({
+        success: false,
+        message: "No queued tasks found for this robot",
+      });
+    }
+    tasks.forEach(task => {
+      task.status = 'active';
+      // task.deliveryTimeline.start = new Date();
+      task.save();
+    });
+    return res.status(200).send({
+      success: true,
+      message: "Queued tasks started successfully",
+      tasks
+    });
+  } catch (error) {
+    console.error("Error starting queued tasks:", error);
+    return res.status(500).send({
+      success: false,
+      message: "Error starting queued tasks",
+      error
     });
   }
 };

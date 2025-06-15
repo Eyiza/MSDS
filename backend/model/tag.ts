@@ -4,12 +4,18 @@ import { Schema, model, Document } from 'mongoose';
 export interface IIdentificationTag extends Document {
   type: string;
   tagCode: string;
-  tagId: string;
+  tagId: string; 
   rssi?: number;
   assignedTo?: Schema.Types.ObjectId;
   assignedDate?: Date;
   lastScanned?: Date;
-  status: string
+  status: string;
+  createdAt: Date;
+  usageHistory?: {
+    task: Schema.Types.ObjectId;
+    timestamp: Date;
+    rssi?: number;
+  }[];
 }
 
 const IdentificationTagSchema = new Schema({

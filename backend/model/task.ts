@@ -12,7 +12,7 @@ export interface ITask extends Document {
   deliveryItem?: string;
   failureReason?: string;
   deliveryTimeline: {
-    create?: Date;
+    create: Date;
     queued?: Date;
     start?: Date;
     complete?: Date;

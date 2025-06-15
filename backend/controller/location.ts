@@ -26,9 +26,11 @@ export const createLocation = async (req: FastifyRequest<{ Body: ILocation }>, r
       type
     });
     robotExists.locations.push(location._id);
+
     await robotExists.save();
     await location.save();
-    return res.status(201).send({
+
+    return res.status(200).send({
       success: true,
       message: "Location created successfully",
       location

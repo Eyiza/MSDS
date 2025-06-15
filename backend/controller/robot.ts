@@ -1,5 +1,9 @@
 import Robot, { IRobot } from "../model/robot";
 import Task from "../model/task";
+import Recipient from "../model/recipient";
+import Location from "../model/location";
+import IdentificationTag from '../model/tag';
+
 import { FastifyRequest, FastifyReply } from "fastify";
 
 export const createRobot = async (req: FastifyRequest<{ Body: IRobot }>, res: FastifyReply) => {
@@ -203,6 +207,82 @@ export const startQueuedTasks = async (req: FastifyRequest<{ Params: { id: strin
     return res.status(500).send({
       success: false,
       message: "Error starting queued tasks",
+      error
+    });
+  }
+};
+
+export const taskCreationData  = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
+  const { id } = req.params;
+  try {
+    const robot = await Robot.findById(id);
+    if (!robot) {
+      return res.status(404).send({
+        success: false,
+        message: "Robot not found",
+      });
+    }
+    const recipients = await Recipient.find({ robot: id, status: 'active' })
+        .populate({
+            path: 'location',
+            select: '_id name type',
+        })
+        .populate({
+            path: 'rfidTag',
+            select: '_id type tagCode',
+        })
+        .populate({
+            path: 'bleBeacon',
+            select: '_id type tagCode',
+        })
+        .populate({
+            path: 'deliveryHistory',
+            select: '_id task_id status createdAt deliveryTimeline',
+        });
+    
+    return res.status(200).send({
+      success: true,
+      message: "Recipient creation data fetched successfully",
+      recipients
+    });
+  } catch (error) {
+    console.error("Error fetching recipient creation data:", error);
+    return res.status(500).send({
+      success: false,
+      message: "Error fetching recipient creation data",
+      error
+    });
+  }
+};
+
+export const recipientCreationData = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
+  const { id } = req.params;
+  try {
+    const robot = await Robot.findById(id);
+    if (!robot) {
+      return res.status(404).send({
+        success: false,
+        message: "Robot not found",
+      });
+    }
+    const locations = await Location.find({ robot: id }).select('_id name type');
+    const RFID_Tags = await IdentificationTag.find({ type: 'rfid', status: 'available' }).select('_id tagCode');
+    const BLE_Beacons = await IdentificationTag.find({ type: 'ble', status: 'available' }).select('_id tagCode');
+
+    return res.status(200).send({
+      success: true,
+      message: "Recipient creation data fetched successfully",
+      data: {
+        locations,
+        RFID_Tags,
+        BLE_Beacons
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching recipient creation data:", error);
+    return res.status(500).send({
+      success: false,
+      message: "Error fetching recipient creation data",
       error
     });
   }

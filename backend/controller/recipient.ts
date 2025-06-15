@@ -17,10 +17,12 @@ export const createRecipient = async (req: FastifyRequest<{ Body: IRecipient }>,
 
     const BLE = await IdentificationTag.findById(bleBeacon);
     if (!BLE) return res.status(404).send({ success: false, message: "BLE Beacon not found" });
+    if (BLE.type !== 'ble') return res.status(400).send({ success: false, message: "Invalid BLE Beacon type" });
     if (BLE.status !== 'available') return res.status(400).send({ success: false, message: "BLE Beacon is already assigned" });
 
     const RFID = await IdentificationTag.findById(rfidTag);
     if (!RFID) return res.status(404).send({ success: false, message: "RFID Tag not found" });
+    if (RFID.type !== 'rfid') return res.status(400).send({ success: false, message: "Invalid RFID Tag type" });
     if (RFID.status !== 'available') return res.status(400).send({ success: false, message: "RFID Tag is already assigned" });
 
     const recipient = new Recipient({
@@ -121,6 +123,7 @@ export const updateRecipient = async (req: FastifyRequest<{ Params: { id: string
     if (rfidTag && recipient.rfidTag.toString() !== rfidTag.toString()) { 
       const RFID = await IdentificationTag.findById(rfidTag);
       if (!RFID) return res.status(404).send({ success: false, message: "RFID Tag not found" });
+      if (RFID.type !== 'rfid') return res.status(400).send({ success: false, message: "Invalid RFID Tag type" });
       if (RFID.status !== 'available') return res.status(400).send({ success: false, message: "RFID Tag is already assigned" });
         
       const existingRFID = await IdentificationTag.findById(recipient.rfidTag);
@@ -134,6 +137,7 @@ export const updateRecipient = async (req: FastifyRequest<{ Params: { id: string
     if (bleBeacon && recipient.bleBeacon?.toString() !== bleBeacon.toString()) {
       const BLE = await IdentificationTag.findById(bleBeacon);
       if (!BLE) return res.status(404).send({ success: false, message: "BLE Beacon not found" });
+      if (BLE.type !== 'ble') return res.status(400).send({ success: false, message: "Invalid BLE Beacon type" });
       if (BLE.status !== 'available') return res.status(400).send({ success: false, message: "BLE Beacon is already assigned" });
 
       const existingBLE = await IdentificationTag.findById(recipient.bleBeacon);
@@ -145,20 +149,16 @@ export const updateRecipient = async (req: FastifyRequest<{ Params: { id: string
       }
     }
 
-    recipient.set({
-      name,
-      location,
-      rfidTag,
-      bleBeacon,
-      admissionDate,
-      medicalCondition,
-      contactInformation,
-      notes
-    });
-    await recipient.save();
-
-    // populate the updated recipient with related fields
-    const updatedRecipient = await Recipient.findById(id).populate({
+    const updatedRecipient = await Recipient.findByIdAndUpdate(id, {
+        name,
+        location,
+        rfidTag,
+        bleBeacon,
+        admissionDate,
+        medicalCondition,
+        contactInformation,
+        notes
+    }, { new: true }).populate({
             path: 'location',
             select: '_id name type',
         })
@@ -190,13 +190,13 @@ export const updateRecipient = async (req: FastifyRequest<{ Params: { id: string
   }
 };
 
-export const searchRecipients = async (req: FastifyRequest<{ Querystring: { name: string, patient_ID: string, location: string } }>, res: FastifyReply) => {
-  const { name, patient_ID, location } = req.query;
+export const searchRecipients = async (req: FastifyRequest<{ Querystring: { name: string, patient_ID: string, status: string } }>, res: FastifyReply) => {
+  const { name, patient_ID, status } = req.query;
   try {
     const filter: any = {};
     if (name) filter.name = { $regex: name, $options: 'i' };
     if (patient_ID) filter.patient_ID = patient_ID;
-    if (location) filter.location = location;
+    if (status) filter.status = status;
     const recipients = await Recipient.find(filter)
         .populate({
             path: 'location',

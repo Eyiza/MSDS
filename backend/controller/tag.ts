@@ -35,10 +35,13 @@ export const createTag = async (req: FastifyRequest<{ Body: IIdentificationTag }
 export const getTagById = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
   const { id } = req.params;
   try {
-    const tag = await IdentificationTag.findById(id).populate('assignedTo')
-        .populate({
-            path: 'assignedTo.location',
+    const tag = await IdentificationTag.findById(id).populate({
+          path: 'assignedTo',
+          select: '_id name patient_ID location',
+          populate: {
+            path: 'location',
             select: '_id name type'
+          }
         })
         .populate({
             path: 'usageHistory.task',
@@ -66,17 +69,19 @@ export const getTagById = async (req: FastifyRequest<{ Params: { id: string } }>
 };
 export const updateTag = async (req: FastifyRequest<{ Params: { id: string }, Body: Partial<IIdentificationTag> }>, res: FastifyReply) => {
   const { id } = req.params;
-  const { tagCode, tagId, rssi, status } = req.body;
+  const { tagCode, tagId, rssi } = req.body;
   try {
     const tag = await IdentificationTag.findByIdAndUpdate(id, {
         tagCode,
         tagId,
         rssi,
-        status
-    }, { new: true }).populate('assignedTo')
-        .populate({
-            path: 'assignedTo.location',
+    }, { new: true }).populate({
+          path: 'assignedTo',
+          select: '_id name patient_ID location',
+          populate: {
+            path: 'location',
             select: '_id name type'
+          }
         })
         .populate({
             path: 'usageHistory.task',
@@ -110,10 +115,14 @@ export const searchTags = async (req: FastifyRequest<{ Querystring: { status: st
     if (status) filter.status = status;
     if (code) filter.tagCode = { $regex: code, $options: 'i' };
     if (type) filter.type = type;
-    const tags = await IdentificationTag.find(filter).populate('assignedTo')
+    const tags = await IdentificationTag.find(filter)
         .populate({
-            path: 'assignedTo.location',
+          path: 'assignedTo',
+          select: '_id name patient_ID location',
+          populate: {
+            path: 'location',
             select: '_id name type'
+          }
         })
         .populate({
             path: 'usageHistory.task',

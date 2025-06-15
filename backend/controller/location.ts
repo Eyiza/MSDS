@@ -47,7 +47,7 @@ export const createLocation = async (req: FastifyRequest<{ Body: ILocation }>, r
 
 export const getLocations = async (req: FastifyRequest, res: FastifyReply) => {
   try {
-    const locations = await Location.find().populate("robot");
+    const locations = await Location.find().populate("robot", "_id name serialNumber");
     return res.status(200).send({
       success: true,
       message: "Locations fetched successfully",
@@ -67,7 +67,7 @@ export const getLocations = async (req: FastifyRequest, res: FastifyReply) => {
 export const getLocationById = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
   const { id } = req.params;
   try {
-    const location = await Location.findById(id).populate("robot");
+    const location = await Location.findById(id).populate("robot", "_id name serialNumber");
     if (!location) {
       return res.status(404).send({
         success: false,
@@ -98,7 +98,7 @@ export const updateLocation = async (req: FastifyRequest<{ Params: { id: string 
       coordinates,
       description,
       type
-    }, { new: true }).populate("robot");
+    }, { new: true }).populate("robot", "_id name serialNumber");
     if (!location) {
       return res.status(404).send({
         success: false,
@@ -151,7 +151,7 @@ export const searchLocations = async (req: FastifyRequest<{ Querystring: { name?
         if (name) filter.name = { $regex: name, $options: "i" };
         if (type) filter.type = type;
 
-        const locations = await Location.find(filter).populate("robot");
+        const locations = await Location.find(filter).populate("robot", "_id name serialNumber");
         return res.status(200).send({
             success: true,
             message: "Locations fetched successfully",

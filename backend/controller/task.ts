@@ -179,7 +179,8 @@ export const searchTasks = async (req: FastifyRequest<{ Querystring: { task_id?:
     return res.status(200).send({
       success: true,
       message: "Tasks fetched successfully",
-      tasks
+      tasks,
+      count: tasks.length
     });
   } catch (error) {
     console.error("Error fetching tasks:", error);

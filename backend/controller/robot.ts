@@ -3,6 +3,10 @@ import Task from "../model/task";
 import Recipient from "../model/recipient";
 import Location from "../model/location";
 import IdentificationTag from '../model/tag';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+
+dayjs.extend(duration);
 
 import { FastifyRequest, FastifyReply } from "fastify";
 
@@ -175,43 +179,6 @@ export const resetRobot = async (req: FastifyRequest<{ Params: { id: string } }>
   }
 };
 
-export const startQueuedTasks = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
-  const { id } = req.params;
-  try {
-    const robot = await Robot.findById(id);
-    if (!robot) {
-      return res.status(404).send({
-        success: false,
-        message: "Robot not found",
-      });
-    }
-    const tasks = await Task.find({ robot: id, status: 'queued' });
-    if (!tasks.length) {
-      return res.status(404).send({
-        success: false,
-        message: "No queued tasks found for this robot",
-      });
-    }
-    tasks.forEach(task => {
-      task.status = 'active';
-      // task.deliveryTimeline.start = new Date();
-      task.save();
-    });
-    return res.status(200).send({
-      success: true,
-      message: "Queued tasks started successfully",
-      tasks
-    });
-  } catch (error) {
-    console.error("Error starting queued tasks:", error);
-    return res.status(500).send({
-      success: false,
-      message: "Error starting queued tasks",
-      error
-    });
-  }
-};
-
 export const taskCreationData  = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
   const { id } = req.params;
   try {
@@ -283,6 +250,138 @@ export const recipientCreationData = async (req: FastifyRequest<{ Params: { id: 
     return res.status(500).send({
       success: false,
       message: "Error fetching recipient creation data",
+      error
+    });
+  }
+};
+
+export const startQueuedTasks = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
+  const { id } = req.params;
+  try {
+    const robot = await Robot.findById(id);
+    if (!robot) {
+      return res.status(404).send({
+        success: false,
+        message: "Robot not found",
+      });
+    }
+    const tasks = await Task.find({ robot: id, status: 'queued' });
+    if (!tasks.length) {
+      return res.status(404).send({
+        success: false,
+        message: "No queued tasks found for this robot",
+      });
+    }
+    tasks.forEach(task => {
+      task.status = 'active';
+      // task.deliveryTimeline.start = new Date();
+      task.save();
+    });
+    return res.status(200).send({
+      success: true,
+      message: "Queued tasks started successfully",
+      tasks
+    });
+  } catch (error) {
+    console.error("Error starting queued tasks:", error);
+    return res.status(500).send({
+      success: false,
+      message: "Error starting queued tasks",
+      error
+    });
+  }
+};
+
+export const getUserDashboardData = async (req: FastifyRequest<{ Params: { id: string } }>, res: FastifyReply) => {
+  const { id } = req.params;
+  try {
+    const robot = await Robot.findById(id);
+    if (!robot) {
+      return res.status(404).send({
+        success: false,
+        message: "Robot not found",
+      });
+    }
+
+    const isOnline = robot?.lastOnline
+      ? Date.now() - new Date(robot.lastOnline).getTime() < 60_000
+      : false;
+
+    const activeDeliveries = await Task.find({ robot: id, status: { $in: ['active', 'queued'] } }).populate({
+          path: 'recipient',
+          select: '_id name patient_ID location',
+          populate: {
+            path: 'location',
+            select: '_id name type'
+          }
+        });
+
+    const totalDeliveries = await Task.countDocuments({ robot: id });
+    const completedDeliveries = await Task.countDocuments({ robot: id, status: 'completed' });
+
+    const successRate = totalDeliveries > 0
+      ? ((completedDeliveries / totalDeliveries) * 100).toFixed(1)
+      : '0.00';
+    
+    const activeFor = robot?.uptime
+      ? dayjs.duration(robot.uptime * 1000).humanize()
+      : 0;
+    
+    const weeklyStats: { day: string; deliveries: number }[] = [];
+    const now = dayjs();
+    const sevenDaysAgo = now.subtract(6, 'day').startOf('day');
+
+    const weeklyTasks = await Task.aggregate([
+      {
+        $match: {
+          robot: id,
+          status: { $in: ['active', 'completed', 'missed'] },
+          // Filter tasks created in the last 7 days
+          createdAt: { $gte: sevenDaysAgo.toDate() }
+        }
+      },
+      {
+        $group: {
+          _id: { $dayOfWeek: '$createdAt' },
+          deliveries: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const daysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    for (let i = 0; i < 7; i++) {
+      const date = now.subtract(6 - i, 'day');
+      const day = daysMap[date.day()];
+      const match = weeklyTasks.find(t => t._id === date.day() + 1);
+      weeklyStats.push({ day, deliveries: match?.deliveries || 0 });
+    }
+
+
+    return res.status(200).send({
+      success: true,
+      message: "User dashboard data fetched successfully",
+      robotStatus: {
+        isOnline,
+        currentMode: robot?.currentMode || 'unknown',
+        batteryLevel: robot?.batteryLevel || 0,
+        wifiSignal: 'Strong', // Placeholder
+        websocketStatus: 'Connected' // Placeholder
+      },
+      activeDeliveries,
+      uptime: {
+        activeFor,
+        lastRestart: robot?.createdAt || null,
+        totalDeliveries,
+        successRate: Number(successRate)
+      },
+      weeklyStats
+    });
+  } catch (error) {
+    console.error("Error fetching user dashboard data:", error);
+    return res.status(500).send({
+      success: false,
+      message: "Error fetching user dashboard data",
       error
     });
   }

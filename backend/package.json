@@ -12,6 +12,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "dayjs": "^1.11.13",
+    "dayjs-plugin-duration": "^0.0.1-security",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.1",
     "fastify-cors": "^6.1.0",

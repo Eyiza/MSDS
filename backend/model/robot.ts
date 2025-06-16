@@ -6,6 +6,8 @@ export interface IRobot extends Document {
   serialNumber: string;
   status: string;
   ipAddress: string;
+  uptime?: number; 
+  batteryLevel?: number;
   currentMode: string;
   lastOnline: Date;
   locations: Schema.Types.ObjectId[];

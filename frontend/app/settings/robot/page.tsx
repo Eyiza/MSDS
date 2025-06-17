@@ -13,6 +13,8 @@ import { BatteryStatus } from "@/components/battery-status"
 import { RobotStatus } from "@/components/robot-status"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { SettingsTabs } from "@/components/settings-tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function RobotSettingsPage() {
   const { toast } = useToast()
@@ -21,9 +23,11 @@ export default function RobotSettingsPage() {
   // Robot settings
   const [robotName, setRobotName] = useState("MSDS-Bot-01")
   const [maxSpeed, setMaxSpeed] = useState(0.5)
-  const [obstacleAvoidance, setObstacleAvoidance] = useState(true)
+  const [speedUnit, setSpeedUnit] = useState("m/s") // Add speed unit state
   const [autoReturn, setAutoReturn] = useState(true)
-  const [soundNotifications, setSoundNotifications] = useState(true)
+  const [defaultMessage, setDefaultMessage] = useState(
+    "Hello, I have a delivery for you. Please scan your RFID tag to confirm.",
+  ) // Add default message
 
   // Delivery settings
   const [waitTime, setWaitTime] = useState(30)
@@ -86,47 +90,54 @@ export default function RobotSettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="max-speed">Maximum Speed (m/s)</Label>
-                    <Input
-                      id="max-speed"
-                      type="number"
-                      value={maxSpeed}
-                      onChange={(e) => setMaxSpeed(Number.parseFloat(e.target.value))}
-                      min="0.1"
-                      max="2.0"
-                      step="0.1"
-                    />
+                    <Label htmlFor="max-speed">Maximum Speed</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="max-speed"
+                        type="number"
+                        value={maxSpeed}
+                        onChange={(e) => setMaxSpeed(Number.parseFloat(e.target.value))}
+                        min="0.1"
+                        max={speedUnit === "m/s" ? "2.0" : "100"}
+                        step={speedUnit === "m/s" ? "0.1" : "5"}
+                        className="flex-1"
+                      />
+                      <Select value={speedUnit} onValueChange={setSpeedUnit}>
+                        <SelectTrigger className="w-[80px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="m/s">m/s</SelectItem>
+                          <SelectItem value="%">%</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="obstacle-avoidance">Obstacle Avoidance</Label>
-                    <Switch
-                      id="obstacle-avoidance"
-                      checked={obstacleAvoidance}
-                      onCheckedChange={setObstacleAvoidance}
-                    />
-                  </div>
-                  <p className="text-sm text-muted-foreground">Enable automatic obstacle detection and avoidance</p>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="auto-return">Auto Return to Dock</Label>
+                    <Label htmlFor="auto-return">Auto Return to Base</Label>
                     <Switch id="auto-return" checked={autoReturn} onCheckedChange={setAutoReturn} />
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Automatically return to charging dock when battery is low
+                    Automatically return to base on map after delivery or inactivity
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="sound">Sound Notifications</Label>
-                    <Switch id="sound" checked={soundNotifications} onCheckedChange={setSoundNotifications} />
-                  </div>
-                  <p className="text-sm text-muted-foreground">Play sound when starting/completing deliveries</p>
+                  <Label htmlFor="default-message">Default Delivery Message</Label>
+                  <Textarea
+                    id="default-message"
+                    value={defaultMessage}
+                    onChange={(e) => setDefaultMessage(e.target.value)}
+                    placeholder="Message the robot will announce upon arrival"
+                    className="resize-none"
+                    rows={3}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    This message will be used when no specific message is provided for a delivery task
+                  </p>
                 </div>
               </CardContent>
               <CardFooter>
@@ -190,4 +201,3 @@ export default function RobotSettingsPage() {
     </div>
   )
 }
-

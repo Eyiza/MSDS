@@ -365,4 +365,3 @@ export default function AdvancedSettingsPage() {
     </div>
   )
 }
-

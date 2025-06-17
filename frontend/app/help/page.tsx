@@ -107,20 +107,19 @@ export default function HelpPage() {
           </TabsList>
 
           <TabsContent value="manual" className="space-y-6 mt-6">
-            <Card >
+            <Card>
               <CardHeader>
                 <CardTitle>Medical Supply Delivery System - User Manual</CardTitle>
                 <CardDescription>Comprehensive guide to using the MSDS system</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="prose prose-sm dark:prose-invert max-w-none">
-                  
                   <p>
                     The Autonomous Medical Supply Delivery System consists of a web-based application and a robot that
                     autonomously navigates hospital environments to deliver supplies. This manual guides users on how to
                     operate the system efficiently.
                   </p>
-                  
+
                   <hr />
                   <h2>
                     <strong>WEB APPLICATION</strong>
@@ -180,15 +179,9 @@ export default function HelpPage() {
                   </h3>
                   <p>The dashboard provides real-time updates on deliveries and system status. Key features include:</p>
                   <ul>
-                    <li>
-                      Keypad mode-switching codes for the robot.
-                    </li>
-                    <li>
-                      Live active deliveries and real-time navigation map.
-                    </li>
-                    <li>
-                      System status, uptime, and weekly delivery statistics.
-                    </li>
+                    <li>Keypad mode-switching codes for the robot.</li>
+                    <li>Live active deliveries and real-time navigation map.</li>
+                    <li>System status, uptime, and weekly delivery statistics.</li>
                   </ul>
 
                   <h3>
@@ -232,22 +225,21 @@ export default function HelpPage() {
                   <p>The robot has four operational modes:</p>
                   <ul>
                     <li>
-                      <i>Mapping Mode:</i> The robot explores and maps the hospital floor using SLAM, avoiding
-                      stairs. Once mapping is complete, this mode exits automatically.
+                      <i>Mapping Mode:</i> The robot explores and maps the hospital floor using SLAM, avoiding stairs.
+                      Once mapping is complete, this mode exits automatically.
                     </li>
                     <li>
-                      <i>Delivery Mode:</i> The robot follows the scheduled tasks, navigating to patient
-                      locations, detecting the nearest BLE beacon, and announcing the pre-set message. It waits for an
-                      RFID scan before and after delivery. If no or incorrect RFID is scanned, it waits for a predefined
-                      time before moving on.
+                      <i>Delivery Mode:</i> The robot follows the scheduled tasks, navigating to patient locations,
+                      detecting the nearest BLE beacon, and announcing the pre-set message. It waits for an RFID scan
+                      before and after delivery. If no or incorrect RFID is scanned, it waits for a predefined time
+                      before moving on.
                     </li>
                     <li>
-                      <i>Manual Control Mode:</i> Users can manually control the robot via the web app or
-                      keypad.
+                      <i>Manual Control Mode:</i> Users can manually control the robot via the web app or keypad.
                     </li>
                     <li>
-                      <i>Standby/Charging Mode:</i> When no tasks are assigned, the robot remains idle at its
-                      base station, charging if necessary.
+                      <i>Standby/Charging Mode:</i> When no tasks are assigned, the robot remains idle at its base
+                      station, charging if necessary.
                     </li>
                   </ul>
 
@@ -370,7 +362,7 @@ export default function HelpPage() {
                 <hr />
                 <div>
                   <h3 className="text-lg font-medium mb-2">Business Hours</h3>
-                  <p className="text-muted-foreground">When our support team is available</p> 
+                  <p className="text-muted-foreground">When our support team is available</p>
                   <ul className="space-y-2">
                     <li>Monday - Friday: 9:00 AM - 6:00 PM (GMT+1)</li>
                     <li>Saturday: 10:00 AM - 4:00 PM (GMT+1)</li>
@@ -385,4 +377,3 @@ export default function HelpPage() {
     </div>
   )
 }
-

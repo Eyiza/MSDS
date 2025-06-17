@@ -27,11 +27,19 @@ export default function RegisterPage() {
   const router = useRouter()
   const { login } = useAuth()
 
+  // Add robot ID state
+  const [robotId, setRobotId] = useState("")
+  const [robotIdError, setRobotIdError] = useState("")
+
+  // Add validation for robot ID in handleSubmit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const form = e.target as HTMLFormElement
     const staffId = (form.elements.namedItem("staffId") as HTMLInputElement).value
     const department = (form.elements.namedItem("department") as HTMLInputElement).value
+
+    // Reset error state
+    setRobotIdError("")
 
     if (password !== confirmPassword) {
       toast({
@@ -42,15 +50,31 @@ export default function RegisterPage() {
       return
     }
 
+    // Validate robot ID
+    if (!robotId.trim()) {
+      setRobotIdError("Robot ID is required")
+      return
+    }
+
     setIsLoading(true)
 
     try {
+      // In a real app, this would validate the robot ID against a database
+      // For demo purposes, we'll simulate a validation check
+      const isValidRobotId = robotId.startsWith("MSDS-") && robotId.length >= 8
+
+      if (!isValidRobotId) {
+        setRobotIdError("Invalid robot ID format or robot not available")
+        setIsLoading(false)
+        return
+      }
+
       // In a real app, this would make an API call to your backend
       // For demo purposes, we'll simulate a successful registration
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Call the login function from auth context to log the user in after registration
-      login({ email, name, staffId, department })
+      login({ email, name, staffId, department, robotId })
 
       toast({
         title: "Registration successful",
@@ -169,6 +193,24 @@ export default function RegisterPage() {
                     </Button>
                   </div>
                 </div>
+
+                {/* Add robot ID field after password fields */}
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="robotId">Robot ID/Serial Number</Label>
+                  <Input
+                    id="robotId"
+                    placeholder="MSDS-1234"
+                    value={robotId}
+                    onChange={(e) => {
+                      setRobotId(e.target.value)
+                      setRobotIdError("")
+                    }}
+                    className={robotIdError ? "border-red-500" : ""}
+                    required
+                  />
+                  {robotIdError && <p className="text-sm text-red-500 mt-1">{robotIdError}</p>}
+                  <p className="text-xs text-muted-foreground">Enter the ID of the robot you'll be managing</p>
+                </div>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
@@ -188,4 +230,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-

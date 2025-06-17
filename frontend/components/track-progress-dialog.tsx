@@ -194,4 +194,3 @@ export function TrackProgressDialog({ open, onOpenChange, task }: TrackProgressD
     </Dialog>
   )
 }
-

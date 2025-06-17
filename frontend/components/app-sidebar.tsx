@@ -12,6 +12,13 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   HelpCircle,
+  Wrench,
+  Tag,
+  AlertTriangle,
+  Terminal,
+  MapPin,
+  Shield,
+  LayoutDashboard,
 } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
@@ -38,15 +45,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// Menu items
-const items = [
+// Menu items for regular users
+const userItems = [
   {
     title: "Dashboard",
     url: "/",
     icon: Home,
   },
   {
-    title: "Live Map",
+    title: "Map",
     url: "/map",
     icon: Map,
   },
@@ -77,10 +84,64 @@ const items = [
   },
 ]
 
+// Menu items for engineers - keeping Dashboard
+const engineerItems = [
+  {
+    title: "Dashboard",
+    url: "/",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Robot Management",
+    url: "/robots",
+    icon: Battery,
+  },
+  {
+    title: "Tag Management",
+    url: "/tags",
+    icon: Tag,
+  },
+  {
+    title: "System Diagnostics",
+    url: "/diagnostics",
+    icon: Wrench,
+  },
+  {
+    title: "Issue Reports",
+    url: "/issues",
+    icon: AlertTriangle,
+  },
+  {
+    title: "User Management",
+    url: "/users",
+    icon: Users,
+  },
+  {
+    title: "Debug Console",
+    url: "/console",
+    icon: Terminal,
+  },
+  {
+    title: "Mapping Tools",
+    url: "/mapping",
+    icon: MapPin,
+  },
+  {
+    title: "Access Control",
+    url: "/access",
+    icon: Shield,
+  },
+  {
+    title: "Settings",
+    url: "/settings/robot",
+    icon: Settings,
+  },
+]
+
 export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, logout, isAuthenticated } = useAuth()
+  const { user, logout, isAuthenticated, isEngineer } = useAuth()
   const { open, setOpen } = useSidebar()
 
   // Don't render the sidebar on auth pages
@@ -105,6 +166,9 @@ export function AppSidebar() {
     setOpen(!open)
   }
 
+  // Select the appropriate menu items based on user role
+  const items = isEngineer ? engineerItems : userItems
+
   return (
     <Sidebar collapsible="icon" className="sidebar-custom">
       <SidebarHeader className={`flex items-center ${open ? "px-4 py-4" : "p-4 flex-col gap-4"}`}>
@@ -114,13 +178,26 @@ export function AppSidebar() {
               <PanelLeftClose className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-2">
-              <Battery className="h-7 w-7 text-primary" />
-              <h1 className="text-xl font-bold">MSDS</h1>
+              {isEngineer ? (
+                <>
+                  <Wrench className="h-7 w-7 text-primary" />
+                  <h1 className="text-xl font-bold">MSDS Admin</h1>
+                </>
+              ) : (
+                <>
+                  <Battery className="h-7 w-7 text-primary" />
+                  <h1 className="text-xl font-bold">MSDS</h1>
+                </>
+              )}
             </div>
           </div>
         ) : (
           <>
-            <Battery className="h-7 w-7 text-primary mt-2" />
+            {isEngineer ? (
+              <Wrench className="h-7 w-7 text-primary mt-2" />
+            ) : (
+              <Battery className="h-7 w-7 text-primary mt-2" />
+            )}
             <Button variant="ghost" size="icon" onClick={toggleSidebar}>
               <PanelLeftOpen className="h-5 w-5" />
             </Button>
@@ -162,6 +239,11 @@ export function AppSidebar() {
                   <div className="flex flex-col items-start text-left">
                     <span className="font-medium text-sm">{user.name}</span>
                     <span className="text-xs text-muted-foreground">{user.email}</span>
+                    {isEngineer && (
+                      <span className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded-full mt-1">
+                        Engineer
+                      </span>
+                    )}
                   </div>
                 )}
               </Button>
@@ -185,4 +267,3 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
-

@@ -125,4 +125,3 @@ export function RFIDDialog({ open, onOpenChange, tag }: RFIDDialogProps) {
     </Dialog>
   )
 }
-

@@ -61,8 +61,7 @@ const faqItems = [
   },
   {
     question: "Can the robot be used in multiple hospital departments?",
-    answer:
-      "Yes! The robot can navigate across departments if they are included in its mapped environment.",
+    answer: "Yes! The robot can navigate across departments if they are included in its mapped environment.",
   },
 ]
 
@@ -158,4 +157,3 @@ export default function FAQPage() {
     </div>
   )
 }
-

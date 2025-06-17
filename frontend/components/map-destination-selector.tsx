@@ -140,4 +140,3 @@ export function MapDestinationSelector({ open, onOpenChange, onSelectDestination
     </Dialog>
   )
 }
-

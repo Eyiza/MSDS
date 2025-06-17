@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Battery } from "lucide-react"
+import { Battery, Wrench, Eye, EyeOff } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,14 +14,20 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/use-auth"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("user@msds.com")
+  const [password, setPassword] = useState("password123")
+  const [showPassword, setShowPassword] = useState(false)
+  const [engineerEmail, setEngineerEmail] = useState("engineer@msds.com")
+  const [engineerPassword, setEngineerPassword] = useState("engineer123")
+  const [showEngineerPassword, setShowEngineerPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState("user")
   const { toast } = useToast()
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, loginAsEngineer } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,13 +38,28 @@ export default function LoginPage() {
       // For demo purposes, we'll simulate a successful login
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Call the login function from auth context
-      login({ email, name: email.split("@")[0] })
-
-      toast({
-        title: "Login successful",
-        description: "Welcome back to MSDS",
-      })
+      if (activeTab === "engineer") {
+        // Login as engineer with provided credentials
+        loginAsEngineer({
+          email: engineerEmail,
+          password: engineerPassword,
+        })
+        toast({
+          title: "Engineer login successful",
+          description: "Welcome to the Robotics Admin Panel",
+        })
+      } else {
+        // Regular user login
+        login({
+          email,
+          name: email.split("@")[0],
+          role: "user",
+        })
+        toast({
+          title: "Login successful",
+          description: "Welcome back to MSDS",
+        })
+      }
 
       router.push("/")
     } catch (error) {
@@ -50,6 +71,14 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
+
+  const toggleEngineerPasswordVisibility = () => {
+    setShowEngineerPassword(!showEngineerPassword)
   }
 
   return (
@@ -73,32 +102,98 @@ export default function LoginPage() {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your.email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link href="/forgot-password" className="text-xs text-primary hover:underline">
-                    Forgot password?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
+              <Tabs defaultValue="user" onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="user">User</TabsTrigger>
+                  <TabsTrigger value="engineer">Engineer</TabsTrigger>
+                </TabsList>
+                <TabsContent value="user">
+                  <div className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="your.email@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="password">Password</Label>
+                        <Link href="/forgot-password" className="text-xs text-primary hover:underline">
+                          Forgot password?
+                        </Link>
+                      </div>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3"
+                          onClick={togglePasswordVisibility}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="engineer">
+                  <div className="space-y-4 pt-4">
+                    {/*
+                    <div className="flex items-center justify-center p-4 bg-muted rounded-lg">
+                      <div className="flex flex-col items-center gap-2">
+                        <Wrench className="h-12 w-12 text-primary" />
+                        <p className="text-sm text-center">Login as a Robotics Engineer to access the admin panel</p>
+                      </div>
+                    </div>
+                    */}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="engineer-email">Engineer Email</Label>
+                      <Input
+                        id="engineer-email"
+                        type="email"
+                        placeholder="engineer@msds.com"
+                        value={engineerEmail}
+                        onChange={(e) => setEngineerEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="engineer-password">Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="engineer-password"
+                          type={showEngineerPassword ? "text" : "password"}
+                          value={engineerPassword}
+                          onChange={(e) => setEngineerPassword(e.target.value)}
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3"
+                          onClick={toggleEngineerPasswordVisibility}
+                        >
+                          {showEngineerPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={isLoading}>
@@ -117,4 +212,3 @@ export default function LoginPage() {
     </div>
   )
 }
-

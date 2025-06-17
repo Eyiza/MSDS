@@ -68,4 +68,3 @@ export function RobotStatus({ status, className }: RobotStatusProps) {
     </Badge>
   )
 }
-

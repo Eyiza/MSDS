@@ -132,4 +132,3 @@ export function BLEBeaconDialog({ open, onOpenChange, beacon }: BLEBeaconDialogP
     </Dialog>
   )
 }
-

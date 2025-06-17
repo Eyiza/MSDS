@@ -6,7 +6,20 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { BatteryStatus } from "@/components/battery-status"
 import { RobotStatus } from "@/components/robot-status"
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, StopCircle, AlertTriangle } from "lucide-react"
+import {
+  ArrowUp,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  StopCircle,
+  AlertTriangle,
+  RotateCcw,
+  RotateCw,
+  ArrowUpRight,
+  ArrowUpLeft,
+  ArrowDownLeft,
+  ArrowDownRight,
+} from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function ControlPage() {
@@ -85,8 +98,21 @@ export default function ControlPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 max-w-[240px] mx-auto">
-                  <div className="col-start-2">
+                {/* Movement Controls with Diagonal Buttons */}
+                <div className="grid grid-cols-5 gap-2 max-w-[300px] mx-auto">
+                  {/* Top Row - Top Left, Up, Top Right */}
+                  <div className="col-start-1">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full aspect-square"
+                      onClick={() => handleMove("top-left")}
+                      disabled={isEmergencyStop}
+                    >
+                      <ArrowUpLeft className="h-6 w-6" />
+                    </Button>
+                  </div>
+                  <div className="col-start-3">
                     <Button
                       variant="outline"
                       size="lg"
@@ -97,34 +123,66 @@ export default function ControlPage() {
                       <ArrowUp className="h-6 w-6" />
                     </Button>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full aspect-square"
-                    onClick={() => handleMove("left")}
-                    disabled={isEmergencyStop}
-                  >
-                    <ArrowLeft className="h-6 w-6" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full aspect-square"
-                    onClick={() => handleStop}
-                    disabled={isEmergencyStop}
-                  >
-                    <StopCircle className="h-6 w-6" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full aspect-square"
-                    onClick={() => handleMove("right")}
-                    disabled={isEmergencyStop}
-                  >
-                    <ArrowRight className="h-6 w-6" />
-                  </Button>
-                  <div className="col-start-2">
+                  <div className="col-start-5">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full aspect-square"
+                      onClick={() => handleMove("top-right")}
+                      disabled={isEmergencyStop}
+                    >
+                      <ArrowUpRight className="h-6 w-6" />
+                    </Button>
+                  </div>
+
+                  {/* Middle Row - Left, Stop, Right */}
+                  <div className="col-start-1">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full aspect-square"
+                      onClick={() => handleMove("left")}
+                      disabled={isEmergencyStop}
+                    >
+                      <ArrowLeft className="h-6 w-6" />
+                    </Button>
+                  </div>
+                  <div className="col-start-3">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full aspect-square"
+                      onClick={() => handleStop()}
+                      disabled={isEmergencyStop}
+                    >
+                      <StopCircle className="h-6 w-6" />
+                    </Button>
+                  </div>
+                  <div className="col-start-5">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full aspect-square"
+                      onClick={() => handleMove("right")}
+                      disabled={isEmergencyStop}
+                    >
+                      <ArrowRight className="h-6 w-6" />
+                    </Button>
+                  </div>
+
+                  {/* Bottom Row - Bottom Left, Down, Bottom Right */}
+                  <div className="col-start-1">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full aspect-square"
+                      onClick={() => handleMove("bottom-left")}
+                      disabled={isEmergencyStop}
+                    >
+                      <ArrowDownLeft className="h-6 w-6" />
+                    </Button>
+                  </div>
+                  <div className="col-start-3">
                     <Button
                       variant="outline"
                       size="lg"
@@ -135,6 +193,39 @@ export default function ControlPage() {
                       <ArrowDown className="h-6 w-6" />
                     </Button>
                   </div>
+                  <div className="col-start-5">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full aspect-square"
+                      onClick={() => handleMove("bottom-right")}
+                      disabled={isEmergencyStop}
+                    >
+                      <ArrowDownRight className="h-6 w-6" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Rotation/Steering Controls */}
+                <div className="flex justify-center gap-4 mt-4">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleMove("rotate-left")}
+                    disabled={isEmergencyStop}
+                  >
+                    <RotateCcw className="mr-2 h-5 w-5" />
+                    Turn Left
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleMove("rotate-right")}
+                    disabled={isEmergencyStop}
+                  >
+                    <RotateCw className="mr-2 h-5 w-5" />
+                    Turn Right
+                  </Button>
                 </div>
 
                 <Button variant="destructive" className="w-full py-6 text-lg font-bold" onClick={handleEmergencyStop}>
@@ -144,87 +235,8 @@ export default function ControlPage() {
               </div>
             </CardContent>
           </Card>
-
-          {/*
-          <Card className="lg:col-span-3">
-            <CardHeader>
-              <CardTitle>Sensor Data</CardTitle>
-              <CardDescription>Real-time sensor readings from the robot</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-muted p-4 rounded-md">
-                  <h3 className="font-medium mb-2">Distance Sensors</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Front</span>
-                      <span>120 cm</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Left</span>
-                      <span>85 cm</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Right</span>
-                      <span>95 cm</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Rear</span>
-                      <span>150 cm</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-muted p-4 rounded-md">
-                  <h3 className="font-medium mb-2">Motion Data</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Speed</span>
-                      <span>0.2 m/s</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Direction</span>
-                      <span>Forward</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Rotation</span>
-                      <span>0°/s</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Acceleration</span>
-                      <span>0 m/s²</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-muted p-4 rounded-md">
-                  <h3 className="font-medium mb-2">System Status</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>CPU Usage</span>
-                      <span>25%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Memory</span>
-                      <span>512MB / 2GB</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Temperature</span>
-                      <span>42°C</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Uptime</span>
-                      <span>3h 45m</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          */}
         </div>
       </div>
     </div>
   )
 }
-

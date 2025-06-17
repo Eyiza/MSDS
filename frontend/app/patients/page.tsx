@@ -23,20 +23,21 @@ import {
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
-import { Search, Edit, User, MapPin, Calendar, Package, Tag, History, Save, EyeIcon } from "lucide-react"
+import { Search, Edit, User, MapPin, Calendar, Package, Tag, History, Save, EyeIcon, LogOut } from "lucide-react"
 import { MapDestinationSelector } from "@/components/map-destination-selector"
 
 interface PatientType {
   id: string
   name: string
-  ward: string
-  room?: string
+  location: string
   rfidTag: string
   bleBeacon: string
   admissionDate: string
   medicalCondition: string
   contactInfo: string
   notes: string
+  status: "active" | "inactive"
+  dischargeDate?: string
 }
 
 interface TagType {
@@ -62,6 +63,15 @@ interface BeaconType {
   lastDetected: string
 }
 
+// Sample locations data
+const locations = [
+  { id: "loc-001", name: "Ward A", type: "ward" },
+  { id: "loc-002", name: "Room 101", type: "room" },
+  { id: "loc-003", name: "Charging Base 1", type: "base" },
+  { id: "loc-004", name: "Ward B", type: "ward" },
+  { id: "loc-005", name: "Room 201", type: "room" },
+]
+
 export default function PatientsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedPatient, setSelectedPatient] = useState<PatientType | null>(null)
@@ -71,12 +81,13 @@ export default function PatientsPage() {
   const [tagSearchTerm, setTagSearchTerm] = useState("")
   const [beaconSearchTerm, setBeaconSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [wardFilter, setWardFilter] = useState("all")
+  const [locationFilter, setLocationFilter] = useState("all")
   const [isMapSelectorOpen, setIsMapSelectorOpen] = useState(false)
   const [selectedDestination, setSelectedDestination] = useState<{ ward: string; room?: string } | null>(null)
   const [isEditMapSelectorOpen, setIsEditMapSelectorOpen] = useState(false)
-  const [registerWard, setRegisterWard] = useState("")
-  const [registerRoom, setRegisterRoom] = useState("")
+  const [registerLocation, setRegisterLocation] = useState("")
+  const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false)
+  const [patientToCheckout, setPatientToCheckout] = useState<PatientType | null>(null)
 
   // Form state for patient editing
   const [editedPatient, setEditedPatient] = useState<PatientType | null>(null)
@@ -92,10 +103,7 @@ export default function PatientsPage() {
   useEffect(() => {
     if (selectedDestination) {
       if (selectedDestination.ward) {
-        setRegisterWard(selectedDestination.ward.toLowerCase().replace(" ", "-"))
-      }
-      if (selectedDestination.room) {
-        setRegisterRoom(selectedDestination.room.toLowerCase().replace(" ", "-"))
+        setRegisterLocation(selectedDestination.ward)
       }
     }
   }, [selectedDestination])
@@ -122,50 +130,76 @@ export default function PatientsPage() {
   const handleSelectDestination = (destination: { ward: string; room?: string }) => {
     setSelectedDestination(destination)
     if (editMode && editedPatient) {
-      handlePatientChange("ward", destination.ward)
-      if (destination.room) {
-        handlePatientChange("room", destination.room)
-      }
+      handlePatientChange("location", destination.ward)
     }
   }
 
-  // Sample data
+  // Handle patient checkout
+  const handleCheckoutPatient = (patient: PatientType) => {
+    setPatientToCheckout(patient)
+    setIsCheckoutDialogOpen(true)
+  }
+
+  // Confirm patient checkout
+  const confirmCheckoutPatient = () => {
+    if (patientToCheckout) {
+      // Here you would typically update your database
+      alert(`Patient ${patientToCheckout.name} has been checked out`)
+      setIsCheckoutDialogOpen(false)
+      setPatientToCheckout(null)
+    }
+  }
+
+  // Sample data - updated with status and locations
   const patients: PatientType[] = [
     {
       id: "P-1001",
       name: "John Doe",
-      ward: "Ward A",
-      room: "Room 105",
+      location: "Ward A",
       rfidTag: "RFID-A1",
       bleBeacon: "BLE-001",
       admissionDate: "2023-03-15",
       medicalCondition: "Post-surgery recovery",
       contactInfo: "Next of kin: Jane Doe (555-1234)",
       notes: "Patient requires regular medication delivery",
+      status: "active",
     },
     {
       id: "P-1002",
       name: "Jane Smith",
-      ward: "Ward B",
-      room: "Room 210",
+      location: "Room 101",
       rfidTag: "RFID-B2",
       bleBeacon: "BLE-002",
       admissionDate: "2023-03-18",
       medicalCondition: "Respiratory issues",
       contactInfo: "Next of kin: John Smith (555-5678)",
       notes: "Patient has mobility issues",
+      status: "active",
     },
     {
       id: "P-1003",
       name: "Robert Johnson",
-      ward: "Ward C",
-      room: "Room 315",
+      location: "Ward B",
       rfidTag: "RFID-C3",
       bleBeacon: "BLE-003",
       admissionDate: "2023-03-20",
       medicalCondition: "Cardiac monitoring",
       contactInfo: "Next of kin: Mary Johnson (555-9012)",
       notes: "Patient requires assistance with medication",
+      status: "active",
+    },
+    {
+      id: "P-1004",
+      name: "Emily Davis",
+      location: "Room 201",
+      rfidTag: "RFID-D4",
+      bleBeacon: "BLE-004",
+      admissionDate: "2023-03-10",
+      medicalCondition: "Recovery complete",
+      contactInfo: "Next of kin: Michael Davis (555-3456)",
+      notes: "Patient ready for discharge",
+      status: "inactive",
+      dischargeDate: "2023-03-25",
     },
   ]
 
@@ -175,7 +209,7 @@ export default function PatientsPage() {
       id: "A1-45678",
       assignedTo: "John Doe",
       patientId: "P-1001",
-      location: "Ward A, Room 105",
+      location: "Ward A",
       status: "Active",
       assignedDate: "2023-03-15",
       lastScanned: "2023-03-26 10:15 AM",
@@ -185,7 +219,7 @@ export default function PatientsPage() {
       id: "B2-56789",
       assignedTo: "Jane Smith",
       patientId: "P-1002",
-      location: "Ward B, Room 210",
+      location: "Room 101",
       status: "Active",
       assignedDate: "2023-03-18",
       lastScanned: "2023-03-26 09:30 AM",
@@ -195,7 +229,7 @@ export default function PatientsPage() {
       id: "C3-67890",
       assignedTo: "Robert Johnson",
       patientId: "P-1003",
-      location: "Ward C, Room 315",
+      location: "Ward B",
       status: "Active",
       assignedDate: "2023-03-20",
       lastScanned: "2023-03-26 11:45 AM",
@@ -228,7 +262,7 @@ export default function PatientsPage() {
       id: "BLE-45678",
       assignedTo: "John Doe",
       patientId: "P-1001",
-      location: "Ward A, Room 105",
+      location: "Ward A",
       status: "Active",
       signalStrength: "-65",
       assignedDate: "2023-03-15",
@@ -239,7 +273,7 @@ export default function PatientsPage() {
       id: "BLE-56789",
       assignedTo: "Jane Smith",
       patientId: "P-1002",
-      location: "Ward B, Room 210",
+      location: "Room 101",
       status: "Active",
       signalStrength: "-70",
       assignedDate: "2023-03-18",
@@ -250,7 +284,7 @@ export default function PatientsPage() {
       id: "BLE-67890",
       assignedTo: "Robert Johnson",
       patientId: "P-1003",
-      location: "Ward C, Room 315",
+      location: "Ward B",
       status: "Active",
       signalStrength: "-68",
       assignedDate: "2023-03-20",
@@ -280,16 +314,18 @@ export default function PatientsPage() {
     },
   ]
 
-  // Filter patients based on search term
+  // Filter patients based on search term and status
   const filteredPatients = patients.filter((patient) => {
     const matchesSearch =
       patient.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.ward.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (patient.room && patient.room.toLowerCase().includes(searchTerm.toLowerCase()))
+      patient.location.toLowerCase().includes(searchTerm.toLowerCase())
 
-    if (wardFilter === "all") return matchesSearch
-    return matchesSearch && patient.ward.toLowerCase().includes(wardFilter.replace("-", " "))
+    const matchesStatus = statusFilter === "all" || patient.status === statusFilter
+    const matchesLocation =
+      locationFilter === "all" || patient.location.toLowerCase().includes(locationFilter.replace("-", " "))
+
+    return matchesSearch && matchesStatus && matchesLocation
   })
 
   // Filter RFID tags based on search term and status
@@ -354,31 +390,45 @@ export default function PatientsPage() {
                   <div className="relative max-w-sm">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search patients by ID, name, ward, room..."
+                      placeholder="Search patients by ID, name, location..."
                       className="pl-8 w-[300px]"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
-                  <Select defaultValue="all" value={wardFilter} onValueChange={setWardFilter}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Filter by ward" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Wards</SelectItem>
-                      <SelectItem value="ward-a">Ward A</SelectItem>
-                      <SelectItem value="ward-b">Ward B</SelectItem>
-                      <SelectItem value="ward-c">Ward C</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Select defaultValue="all" value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select defaultValue="all" value={locationFilter} onValueChange={setLocationFilter}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Locations</SelectItem>
+                        {locations.map((location) => (
+                          <SelectItem key={location.id} value={location.name.toLowerCase().replace(" ", "-")}>
+                            {location.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Patient ID</TableHead>
                       <TableHead>Name</TableHead>
-                      <TableHead>Ward</TableHead>
-                      <TableHead>Room</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>RFID Tag</TableHead>
                       <TableHead>BLE Beacon</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -396,8 +446,19 @@ export default function PatientsPage() {
                         <TableRow key={patient.id}>
                           <TableCell>{patient.id}</TableCell>
                           <TableCell>{patient.name}</TableCell>
-                          <TableCell>{patient.ward}</TableCell>
-                          <TableCell>{patient.room || "-"}</TableCell>
+                          <TableCell>{patient.location}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className={
+                                patient.status === "active"
+                                  ? "bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                  : "bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                              }
+                            >
+                              {patient.status === "active" ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
                           <TableCell>{patient.rfidTag}</TableCell>
                           <TableCell>{patient.bleBeacon}</TableCell>
                           <TableCell className="text-right space-x-2">
@@ -424,6 +485,17 @@ export default function PatientsPage() {
                               <EyeIcon className="h-4 w-4 mr-1" />
                               View
                             </Button>
+                            {patient.status === "active" && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-orange-600 hover:text-orange-700"
+                                onClick={() => handleCheckoutPatient(patient)}
+                              >
+                                <LogOut className="h-4 w-4 mr-1" />
+                                Checkout
+                              </Button>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))
@@ -614,34 +686,17 @@ export default function PatientsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="ward">Ward</Label>
-                    <div className="flex gap-2">
-                      <Select value={registerWard} onValueChange={setRegisterWard}>
-                        <SelectTrigger id="ward" className="flex-1">
-                          <SelectValue placeholder="Select ward" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ward-a">Ward A</SelectItem>
-                          <SelectItem value="ward-b">Ward B</SelectItem>
-                          <SelectItem value="ward-c">Ward C</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button variant="outline" size="icon" onClick={() => setIsMapSelectorOpen(true)}>
-                        <MapPin className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="room">Room (Optional)</Label>
-                    <Select value={registerRoom} onValueChange={setRegisterRoom}>
-                      <SelectTrigger id="room">
-                        <SelectValue placeholder="Select room" />
+                    <Label htmlFor="location">Location</Label>
+                    <Select value={registerLocation} onValueChange={setRegisterLocation}>
+                      <SelectTrigger id="location">
+                        <SelectValue placeholder="Select location" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="room-101">Room 101</SelectItem>
-                        <SelectItem value="room-102">Room 102</SelectItem>
-                        <SelectItem value="room-103">Room 103</SelectItem>
+                        {locations.map((location) => (
+                          <SelectItem key={location.id} value={location.name}>
+                            {location.name} ({location.type})
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -724,12 +779,34 @@ export default function PatientsPage() {
                       <div>
                         <h2 className="text-xl font-semibold">{selectedPatient.name}</h2>
                         <p className="text-muted-foreground">{selectedPatient.id}</p>
+                        <Badge
+                          variant="outline"
+                          className={
+                            selectedPatient.status === "active"
+                              ? "bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-300"
+                              : "bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                          }
+                        >
+                          {selectedPatient.status === "active" ? "Active" : "Inactive"}
+                        </Badge>
                       </div>
                       {!editMode && (
-                        <Button className="ml-auto" onClick={() => setEditMode(true)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Patient
-                        </Button>
+                        <div className="ml-auto flex gap-2">
+                          {selectedPatient.status === "active" && (
+                            <Button
+                              variant="outline"
+                              className="text-orange-600 hover:text-orange-700"
+                              onClick={() => handleCheckoutPatient(selectedPatient)}
+                            >
+                              <LogOut className="h-4 w-4 mr-2" />
+                              Checkout
+                            </Button>
+                          )}
+                          <Button onClick={() => setEditMode(true)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Patient
+                          </Button>
+                        </div>
                       )}
                     </div>
                   )}
@@ -751,59 +828,49 @@ export default function PatientsPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="edit-ward">Ward</Label>
+                      <Label htmlFor="edit-location">Location</Label>
                       {editMode ? (
-                        <div className="flex gap-2">
-                          <Select
-                            defaultValue={selectedPatient.ward.toLowerCase().replace(" ", "-")}
-                            onValueChange={(value) =>
-                              handlePatientChange(
-                                "ward",
-                                value === "ward-a" ? "Ward A" : value === "ward-b" ? "Ward B" : "Ward C",
-                              )
-                            }
-                          >
-                            <SelectTrigger id="edit-ward" className="flex-1">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="ward-a">Ward A</SelectItem>
-                              <SelectItem value="ward-b">Ward B</SelectItem>
-                              <SelectItem value="ward-c">Ward C</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Button variant="outline" size="icon" onClick={() => setIsEditMapSelectorOpen(true)}>
-                            <MapPin className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <Select
+                          defaultValue={selectedPatient.location}
+                          onValueChange={(value) => handlePatientChange("location", value)}
+                        >
+                          <SelectTrigger id="edit-location">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {locations.map((location) => (
+                              <SelectItem key={location.id} value={location.name}>
+                                {location.name} ({location.type})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       ) : (
-                        <Input id="edit-ward" value={editedPatient?.ward || ""} disabled />
+                        <Input id="edit-location" value={editedPatient?.location || ""} disabled />
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="edit-room">Room (Optional)</Label>
+                      <Label htmlFor="edit-status">Status</Label>
                       {editMode ? (
                         <Select
-                          defaultValue={selectedPatient.room?.toLowerCase().replace(" ", "-")}
-                          onValueChange={(value) =>
-                            handlePatientChange(
-                              "room",
-                              value === "room-101" ? "Room 101" : value === "room-102" ? "Room 102" : "Room 103",
-                            )
-                          }
+                          defaultValue={selectedPatient.status}
+                          onValueChange={(value) => handlePatientChange("status", value)}
                         >
-                          <SelectTrigger id="edit-room">
+                          <SelectTrigger id="edit-status">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="room-101">Room 101</SelectItem>
-                            <SelectItem value="room-102">Room 102</SelectItem>
-                            <SelectItem value="room-103">Room 103</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (
-                        <Input id="edit-room" value={editedPatient?.room || "Not assigned"} disabled />
+                        <Input
+                          id="edit-status"
+                          value={editedPatient?.status === "active" ? "Active" : "Inactive"}
+                          disabled
+                        />
                       )}
                     </div>
 
@@ -863,6 +930,18 @@ export default function PatientsPage() {
                         disabled={!editMode}
                       />
                     </div>
+
+                    {selectedPatient.dischargeDate && (
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="edit-discharge-date">Discharge Date</Label>
+                        <Input
+                          id="edit-discharge-date"
+                          type="date"
+                          value={selectedPatient.dischargeDate || ""}
+                          disabled
+                        />
+                      </div>
+                    )}
 
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="edit-medical-condition">Medical Condition</Label>
@@ -949,6 +1028,33 @@ export default function PatientsPage() {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Patient Checkout Dialog */}
+        <Dialog open={isCheckoutDialogOpen} onOpenChange={setIsCheckoutDialogOpen}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Checkout Patient</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to checkout this patient? This will change their status to inactive.
+              </DialogDescription>
+            </DialogHeader>
+
+            {patientToCheckout && (
+              <div className="py-4">
+                <p className="font-medium">{patientToCheckout.name}</p>
+                <p className="text-sm text-muted-foreground">Patient ID: {patientToCheckout.id}</p>
+                <p className="text-sm text-muted-foreground">Location: {patientToCheckout.location}</p>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCheckoutDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={confirmCheckoutPatient}>Checkout Patient</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* RFID Tag Details Dialog */}
         {selectedTag && (
@@ -1200,4 +1306,3 @@ export default function PatientsPage() {
     </div>
   )
 }
-

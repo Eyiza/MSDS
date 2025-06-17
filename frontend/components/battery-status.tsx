@@ -45,4 +45,3 @@ export function BatteryStatus({ level, isCharging = false, className }: BatteryS
     </TooltipProvider>
   )
 }
-

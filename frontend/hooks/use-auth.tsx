@@ -3,18 +3,27 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
+type UserRole = "user" | "admin" | "engineer"
+
 type User = {
   email: string
   name: string
   staffId?: string
   department?: string
-  role?: string
+  role: UserRole
+}
+
+type EngineerLoginParams = {
+  email: string
+  password: string
 }
 
 type AuthContextType = {
   user: User | null
   isAuthenticated: boolean
+  isEngineer: boolean
   login: (user: User) => void
+  loginAsEngineer: (params: EngineerLoginParams) => void
   logout: () => void
 }
 
@@ -35,8 +44,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = (userData: User) => {
-    setUser(userData)
-    localStorage.setItem("msds_user", JSON.stringify(userData))
+    // Set default role if not provided
+    const userWithRole = {
+      ...userData,
+      role: userData.role || "user",
+    }
+    setUser(userWithRole)
+    localStorage.setItem("msds_user", JSON.stringify(userWithRole))
+  }
+
+  const loginAsEngineer = ({ email, password }: EngineerLoginParams) => {
+    // In a real app, you would validate the engineer credentials
+    // For demo purposes, we'll create an engineer user with the provided email
+    const engineerUser = {
+      email: email,
+      name: email.split("@")[0],
+      staffId: "ENG-" + Math.floor(1000 + Math.random() * 9000),
+      department: "Engineering",
+      role: "engineer" as UserRole,
+    }
+    setUser(engineerUser)
+    localStorage.setItem("msds_user", JSON.stringify(engineerUser))
   }
 
   const logout = () => {
@@ -48,7 +76,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     isAuthenticated: !!user,
+    isEngineer: user?.role === "engineer",
     login,
+    loginAsEngineer,
     logout,
   }
 
@@ -66,4 +96,3 @@ export function useAuth() {
   }
   return context
 }
-

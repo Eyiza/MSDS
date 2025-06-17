@@ -11,6 +11,7 @@ export interface ITask extends Document {
   status: string; 
   deliveryItem?: string;
   failureReason?: string;
+  priority: string;
   deliveryTimeline: {
     create: Date;
     queued?: Date;
@@ -30,6 +31,7 @@ const TaskSchema = new Schema({
   status: { type: String, enum: ['todo', 'queued', 'active', 'completed', 'missed'], default: 'todo' },
   deliveryItem: String,
   failureReason: String,
+  priority: { type: String, enum: ['low', 'normal', 'high'], default: 'normal' },
   createdAt: { type: Date, default: Date.now },
   deliveryTimeline: {
     create: Date,

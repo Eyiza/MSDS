@@ -16,8 +16,12 @@ This is the backend for the Medical Supply Delivery Robot project, built with Fa
 ### Configuration
 The backend requires a `.env` file to run. The `.env` file should contain the following variables:
 ```
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/msds
+PORT=3100
+MONGODB_URL=your_mongodb_url
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRATION=24h
+EMAIL=your_email
+FRONTEND_URL=http://localhost:3000
 ```
 
 ### Running the Server

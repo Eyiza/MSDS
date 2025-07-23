@@ -33,7 +33,7 @@ The API documentation can be found [here](./backend/README.md).
 ### Deployments
 - Frontend: [MSDS](http://localhost:3000)
 - Backend: [MDSD API](https://msds-ndxh.onrender.com)
-- ROS: [MSDS ROS Workspace](https://github.com/Eyiza/msds_ws)
+- ROS2: [MSDS ROS2 Workspace](https://github.com/Eyiza/msds_ws)
 
 ### References
   * [Medium Tutorial](https://duncanlew.medium.com/build-a-node-js-server-with-fastify-and-typescript-a0f7225afddc)

@@ -24,9 +24,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/register",
+							"raw": "{{host}}/register",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
 								"register"
@@ -37,25 +37,12 @@
 				},
 				{
 					"name": "Log in",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = JSON.parse(responseBody)\r",
-									"postman.setGlobalVariable(\"BearerToken\", jsonData.token)"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"joe@gmail.com\",\r\n    \"password\": \"Joe\"\r\n    \r\n}",
+							"raw": "{\r\n    \"serialNumber\": \"DIS103\",\r\n    \"layers\": 3,\r\n    \"drugType\": \"tablet\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -63,12 +50,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/login",
+							"raw": "{{host}}/dispenser",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
-								"login"
+								"dispenser"
 							]
 						}
 					},
@@ -93,12 +80,768 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/logout",
+							"raw": "{{host}}/logout",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
 								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Robots",
+			"item": [
+				{
+					"name": "Create a robot",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"MSDS-Bot-01\",\r\n    \"serialNumber\": \"ROB-001\",\r\n    \"ipAddress\": \"192.168.1.165\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/robot",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"robot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Robots",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/robot",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"robot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Robot by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/robot/684c959573edcd254763e5ed",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"robot",
+								"684c959573edcd254763e5ed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Dashboard Data",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/robot/684c959573edcd254763e5ed/dashboard",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"robot",
+								"684c959573edcd254763e5ed",
+								"dashboard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Robot",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"MSDS-Bot\",\r\n    \"ipAddress\": \"192.168.191.165\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/robot/684c959573edcd254763e5ed",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"robot",
+								"684c959573edcd254763e5ed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Robot",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/robot/684c959573edcd254763e5ed/deactivate",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"robot",
+								"684c959573edcd254763e5ed",
+								"deactivate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Factory Reset Robot",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/robot/684c959573edcd254763e5ed/reset",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"robot",
+								"684c959573edcd254763e5ed",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Locations",
+			"item": [
+				{
+					"name": "Create a location",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Ward A\",\r\n    \"coordinates\": {\r\n        \"x\": 4.2,\r\n        \"y\": 6.8\r\n    },\r\n    \"robot\": \"684c959573edcd254763e5ed\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/location",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"location"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Locations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/location",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"location"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Location by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/location/684cb2fbd2f6c820fdca5467",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"location",
+								"684cb2fbd2f6c820fdca5467"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Location",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Ward B\",\r\n    \"coordinates\": {\r\n        \"x\": 4.2,\r\n        \"y\": 6.6\r\n    },\r\n    \"description\": \"Maternity Ward\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/location/684cb370d2f6c820fdca5472",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"location",
+								"684cb370d2f6c820fdca5472"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Location",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/location/684cb370d2f6c820fdca5472",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"location",
+								"684cb370d2f6c820fdca5472"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Locations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/location/search?name=ward&type=room",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"location",
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "ward"
+								},
+								{
+									"key": "type",
+									"value": "room"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Identifcation Tag",
+			"item": [
+				{
+					"name": "Create identification tag",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    // \"type\": \"rfid\",\r\n    // \"tagCode\": \"RFID-A1\",\r\n    // \"tagId\": \"A1-45678\"\r\n\r\n    \"type\": \"ble\",\r\n    \"tagCode\": \"BLE-002\",\r\n    \"tagId\": \"BLE-45678\",\r\n    \"rssi\": -65\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/tag",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"tag"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tag by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/tag/684cbf5ea8ec8e792023dbd7",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"tag",
+								"684cbf5ea8ec8e792023dbd7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Tag",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tagId\": \"A1-45676\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/tag/684cbf5ea8ec8e792023dbd7",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"tag",
+								"684cbf5ea8ec8e792023dbd7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search and Get All Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/tag/search",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"tag",
+								"search"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "available",
+									"disabled": true
+								},
+								{
+									"key": "code",
+									"value": "A1",
+									"disabled": true
+								},
+								{
+									"key": "type",
+									"value": "rfid",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Recipient / Patient",
+			"item": [
+				{
+					"name": "Create recipient",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"John Doe\",\r\n    \"location\": \"684cb2fbd2f6c820fdca5467\",\r\n    \"rfidTag\": \"684cbf5ea8ec8e792023dbd7\",\r\n    \"bleBeacon\": \"684cbf7ea8ec8e792023dbda\",\r\n    \"medicalCondition\": \"Post-surgery recovery\",\r\n    \"contactInformation\": \"Next of kin: Jane Doe (555-1234)\",\r\n    \"notes\": \"Patient requires regular medication delivery\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/recipients",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"recipients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Recipient by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/recipients/684f0e0bb0edac7eb2ecbc87",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"recipients",
+								"684f0e0bb0edac7eb2ecbc87"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Recipient",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Joel Doe\",\r\n    \"medicalCondition\": \"Dialysis\",\r\n    \"notes\": \"Patient need regular medication delivery\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/recipients/684f0e0bb0edac7eb2ecbc87",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"recipients",
+								"684f0e0bb0edac7eb2ecbc87"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search and Get All Recipients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/recipients/search?name=joel&patient_ID=P-1604&status=active",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"recipients",
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "joel"
+								},
+								{
+									"key": "patient_ID",
+									"value": "P-1604"
+								},
+								{
+									"key": "status",
+									"value": "active"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Checkout Recipient",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/recipients/684f0e0bb0edac7eb2ecbc87/checkout",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"recipients",
+								"684f0e0bb0edac7eb2ecbc87",
+								"checkout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Task",
+			"item": [
+				{
+					"name": "Create Task",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"recipient\": \"684f103e7d9bcb86ab0717a2\",\r\n    \"message\": \"Your food has arrived.\",\r\n    \"deliveryItem\": \"Medication\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/task",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"task"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Queue Tasks",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"taskIds\": [\"684f104a7d9bcb86ab0717a9\", \"684f10987d9bcb86ab0717b1\"] \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/task/queue",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"task",
+								"queue"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dequeue Task",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/task/684f10987d9bcb86ab0717b1/dequeue",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"task",
+								"684f10987d9bcb86ab0717b1",
+								"dequeue"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Task by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/task/684f10987d9bcb86ab0717b1",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"task",
+								"684f10987d9bcb86ab0717b1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/task/684f10987d9bcb86ab0717b1",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"task",
+								"684f10987d9bcb86ab0717b1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Task",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"message\": \"Your medication has arrived.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{msds_host}}/task/684f10987d9bcb86ab0717b1",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"task",
+								"684f10987d9bcb86ab0717b1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search and Get All Tasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/task/search?status=queued",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"task",
+								"search"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "queued"
+								},
+								{
+									"key": "recipient",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "location",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Forms Info",
+			"item": [
+				{
+					"name": "Get Data for Recipient Creation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/robot/684c959573edcd254763e5ed/recipient-creation",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"robot",
+								"684c959573edcd254763e5ed",
+								"recipient-creation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Data for Task Creation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{msds_host}}/robot/684c959573edcd254763e5ed/task-creation",
+							"host": [
+								"{{msds_host}}"
+							],
+							"path": [
+								"robot",
+								"684c959573edcd254763e5ed",
+								"task-creation"
+							],
+							"query": [
+								{
+									"key": "recipient",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "location",
+									"value": "",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -155,8 +898,8 @@
 	],
 	"variable": [
 		{
-			"key": "host",
-			"value": "http://localhost:6000",
+			"key": "msds_host",
+			"value": "http://localhost:3100",
 			"type": "string"
 		}
 	]

@@ -31,8 +31,9 @@ The API documentation can be found [here](./backend/README.md).
 6. Follow the instructions in the frontend README.md
 
 ### Deployments
-- Frontend: [MSDS]()
-- Backend: [MDSD API]()
+- Frontend: [MSDS](http://localhost:3000)
+- Backend: [MDSD API](https://msds-ndxh.onrender.com)
+- ROS: [MSDS ROS Workspace](https://github.com/Eyiza/msds_ws)
 
 ### References
   * [Medium Tutorial](https://duncanlew.medium.com/build-a-node-js-server-with-fastify-and-typescript-a0f7225afddc)

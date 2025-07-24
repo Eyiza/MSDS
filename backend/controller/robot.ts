@@ -11,12 +11,13 @@ dayjs.extend(duration);
 import { FastifyRequest, FastifyReply } from "fastify";
 
 export const createRobot = async (req: FastifyRequest<{ Body: IRobot }>, res: FastifyReply) => {
-  const { name, serialNumber, ipAddress } = req.body;
+  const { name, serialNumber, ipAddress, ros_bridgeUrl } = req.body;
   try {
     const robot = new Robot({
       name,
       serialNumber,
-      ipAddress
+      ipAddress,
+      ros_bridgeUrl
     });
     await robot.save();
     

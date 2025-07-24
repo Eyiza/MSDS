@@ -6,6 +6,7 @@ export interface IRobot extends Document {
   serialNumber: string;
   status: string;
   ipAddress: string;
+  ros_bridgeUrl: string;
   uptime?: number; 
   batteryLevel?: number;
   currentMode: string;
@@ -29,6 +30,7 @@ const RobotSchema = new Schema({
   serialNumber: { type: String, unique: true },
   status: { type: String, enum: ['active', 'inactive', 'out_of_order'], default: 'active' },
   ipAddress: String,
+  ros_bridgeUrl: { type: String, default: 'ws://192.168.1.101:9090'}, // Default WebSocket URL for ROS bridge
   uptime: Number,
   batteryLevel: Number,
   currentMode: { type: String, enum: ['standby', 'delivery', 'mapping', 'manual'], default: 'standby' },

@@ -1,12 +1,20 @@
 import Fastify from 'fastify';
 import dotenv from 'dotenv';
 import mongoose from "mongoose";
+import cors from '@fastify/cors';
 
 dotenv.config();
 
 const app = Fastify();
 const PORT = Number(process.env.PORT) || 5000;
 const MONGODB_URL = process.env.MONGODB_URL || "";
+
+// Middleware
+app.register(cors, {
+  origin: '*',
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  // allowedHeaders: ['Content-Type', 'Authorization'],
+});
 
 // Routes
 app.get('/', async (req, res) => {

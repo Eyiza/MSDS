@@ -4,6 +4,7 @@ import { createRobot, getRobots,
   deactivateRobot, resetRobot,
   taskCreationData, recipientCreationData,
   startQueuedTasks, getUserDashboardData,
+  changeRobotMode
 } from '../controller/robot';
 
 export default async function robotRoutes(fastify: FastifyInstance) {
@@ -17,4 +18,5 @@ export default async function robotRoutes(fastify: FastifyInstance) {
   fastify.get('/robot/:id/recipient-creation', recipientCreationData);
   // fastify.post('/robot/:id/start', startQueuedTasks);
   fastify.get('/robot/:id/dashboard', getUserDashboardData);
+  fastify.patch('/robot/:id/mode', changeRobotMode);
 }

@@ -387,3 +387,45 @@ export const getUserDashboardData = async (req: FastifyRequest<{ Params: { id: s
     });
   }
 };
+
+export const changeRobotMode = async (req: FastifyRequest<{ Params: { id: string }, Body: { mode: string } }>, res: FastifyReply) => {
+  const { id } = req.params;
+  const { mode } = req.body;
+  try {
+    const robot = await Robot.findById(id);
+    if (!robot) {
+      return res.status(404).send({
+        success: false,
+        message: "Robot not found",
+      });
+    }
+    if (!['standby', 'delivery', 'mapping', 'manual'].includes(mode)) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid mode. Allowed modes are: standby, delivery, mapping, manual",
+      });
+    }
+    if (robot.currentMode === mode) {
+      return res.status(200).send({
+        success: true,
+        message: "Robot mode is already set to the requested mode",
+        robot
+      });
+    }
+    
+    robot.currentMode = mode;
+    await robot.save();
+    return res.status(200).send({
+      success: true,
+      message: "Robot mode changed successfully",
+      robot
+    });
+  } catch (error) {
+    console.error("Error changing robot mode:", error);
+    return res.status(500).send({
+      success: false,
+      message: "Error changing robot mode",
+      error
+    });
+  }
+};

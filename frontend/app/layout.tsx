@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import Script from "next/script"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -27,6 +28,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script src="https://cdn.jsdelivr.net/npm/eventemitter2@6/lib/eventemitter2.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdn.jsdelivr.net/npm/easeljs@1/lib/easeljs.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdn.jsdelivr.net/npm/ros2d@0/build/ros2d.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js" strategy="beforeInteractive" />
+      </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <AuthProvider>

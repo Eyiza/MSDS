@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -25,6 +25,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import ROSLIB from "roslib"
+// import ROS2D from "ros2d"
+
+declare global {
+  interface Window {
+    ROS2D: any
+    createjs: any
+  }
+}
 
 interface Location {
   id: string
@@ -235,6 +244,133 @@ export default function MapPage() {
     }
   }
 
+  const [robot, setRobot] = useState<any>(null)
+  const mapRef = useRef<HTMLDivElement>(null)
+  const [mapReady, setMapReady] = useState(false);
+
+  const ROS2D = typeof window !== "undefined" ? window.ROS2D : null
+  const createjs = typeof window !== "undefined" ? window.createjs : null
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_BACKENDURL}/robot/${process.env.NEXT_PUBLIC_DEFAULT_ROBOT_ID}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => setRobot(data))
+      .catch((error) => {
+        console.error("Failed to fetch robot data:", error);
+        setRobot(null); 
+      });
+  }, [])
+  
+  useEffect(() => {
+    if (!mapRef.current || !robot || robot.currentMode === "standby" || robot.currentMode === "manual") return;
+
+    // Connect to rosbridge
+    const ros = new ROSLIB.Ros({
+      url: robot.ros_bridgeUrl || 'ws://localhost:9090', 
+    })
+    ros.on("connection", () => console.log("Connected to rosbridge"))
+    ros.on("error", (err) => console.error("ROS Error", err))
+    ros.on("close", () => console.log("Connection closed"))
+
+    // 2D viewer
+    const viewer = new ROS2D.Viewer({
+      divID: mapRef.current.id,
+      width: mapRef.current.clientWidth,
+      height: mapRef.current.clientHeight,
+    })
+
+    // Occupancy Grid Client (for map)
+    const gridClient = new ROS2D.OccupancyGridClient({
+      ros,
+      rootObject: viewer.scene,
+      continuous: true,
+      topic: `/map`, 
+    })
+
+    gridClient.on("change", () => {
+      viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height)
+      viewer.shift(gridClient.currentGrid.pose.position.x, gridClient.currentGrid.pose.position.y)
+      setMapReady(true);
+    })
+
+    // Robot Marker
+    const robotMarker = new ROS2D.NavigationArrow({
+      size: 0.3,
+      strokeSize: 0.03,
+      fillColor: createjs.Graphics.getRGB(255, 0, 0, 0.9),
+    })
+    viewer.scene.addChild(robotMarker)
+
+    // LIDAR Visualization
+    const lidarTopic = new ROSLIB.Topic({
+      ros,
+      name: "/scan_filtered",
+      messageType: "sensor_msgs/LaserScan",
+    })
+
+    const scanShape = new createjs.Shape()
+    viewer.scene.addChild(scanShape)
+
+    // Subscribe to lidar scans
+    lidarTopic.subscribe((msg: any) => {
+      const scan = msg as {
+        angle_increment: number
+        angle_min: number
+        range_min: number
+        range_max: number
+        ranges: number[]
+      }
+      scanShape.graphics.clear()
+      scanShape.graphics.beginStroke(createjs.Graphics.getRGB(0, 255, 0, 0.5))
+      scanShape.graphics.setStrokeStyle(0.02)
+
+      const angleIncrement = scan.angle_increment
+      const angleMin = scan.angle_min
+
+      scan.ranges.forEach((r: number, i: number) => {
+        if (r < scan.range_max && r > scan.range_min) {
+          const angle = angleMin + i * angleIncrement
+          const x = r * Math.cos(angle)
+          const y = -r * Math.sin(angle)
+          scanShape.graphics.moveTo(0, 0)
+          scanShape.graphics.lineTo(x, y)
+        }
+      })
+
+      scanShape.graphics.endStroke()
+    })
+
+    // Subscribe to pose
+    const poseTopic = new ROSLIB.Topic({
+      ros,
+      name: "/tf",
+      messageType: "tf2_msgs/TFMessage",
+    })
+    poseTopic.subscribe((msg: any) => {
+      const baseLink = msg.transforms.find((t: any) => t.child_frame_id === "base_footprint")
+      if (baseLink) {
+        robotMarker.x = baseLink.transform.translation.x
+        robotMarker.y = -baseLink.transform.translation.y
+        const q = baseLink.transform.rotation
+        const yaw = Math.atan2(
+          2.0 * (q.w * q.z + q.x * q.y),
+          1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        )
+        robotMarker.rotation = yaw * (180.0 / Math.PI)
+      }
+    })
+
+    return () => {
+      ros.close()
+    }
+  }, [robot])
+
+
   return (
     <div className="min-h-screen w-full p-6">
       <div className="container mx-auto space-y-8">
@@ -278,9 +414,16 @@ export default function MapPage() {
                   <CardDescription>Real-time map with robot position and obstacles</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="aspect-[4/3] bg-muted rounded-md flex items-center justify-center">
-                    <p className="text-muted-foreground">Live map visualization will appear here</p>
-                  </div>
+                  {mapReady ? (
+                    <div id="live-map"
+                      ref={mapRef}
+                      style={{ width: "100%", height: "600px", border: "1px solid #ccc" }}
+                    />
+                  ) : (
+                    <div className="aspect-[4/3] bg-muted rounded-md flex items-center justify-center">
+                      <p className="text-muted-foreground">Live map visualization will appear here</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
